@@ -7,8 +7,13 @@
     <title>SELTech Solar Package Calculator</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- jsPDF CDN -->
+    
+    <!-- PDF LIBRARIES -->
+    <!-- jsPDF (for CREATING the new page) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- NEW: pdf-lib (for LOADING and MERGING existing PDFs) -->
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+
 
     <style>
         /* Custom Font */
@@ -52,7 +57,7 @@
     <main class="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden" style="min-height: 500px;">
         <!-- Header Section -->
         <header class="p-6 bg-gradient-to-r from-blue-700 to-blue-900 text-white">
-            <!-- NEW: Logo added to the main page header -->
+            <!-- Logo added to the main page header -->
             <img src="https://i.postimg.cc/KvgCmtJG/SELTech-Logo-App.png" alt="SELTech Logo" class="w-20 h-20 mx-auto rounded-md shadow-lg">
             
             <h1 class="text-3xl font-bold text-center mt-4">SELTech International</h1>
@@ -165,7 +170,6 @@
                 </ul>
             </div>
             
-            <!-- NEW: Customer Details for PDF (wrapped in a form for validation) -->
             <form id="pdfForm" class="mt-6 mb-4 space-y-3" novalidate>
                 <h3 class="text-lg font-semibold text-gray-800">Personalize Your Quotation (Required)</h3>
                 <div>
@@ -200,7 +204,6 @@
         document.addEventListener('DOMContentLoaded', () => {
 
             // --- Database of Solar Packages ---
-            // !!! EDIT THIS SECTION WITH YOUR PACKAGE DETAILS !!!
             const allPackages = [
                 {
                     id: 1,
@@ -259,15 +262,15 @@
                     ]
                 }
             ];
-            // !!! END OF PACKAGE DATABASE !!!
+            // --- End of Package Database ---
 
 
-            // --- Get UI Sections ---
+            // --- UI Sections ---
             const budgetSection = document.getElementById('budgetSection');
             const packagesSection = document.getElementById('packagesSection');
             const detailsSection = document.getElementById('detailsSection');
 
-            // --- Get Buttons ---
+            // --- Buttons ---
             const findPackagesByBudgetBtn = document.getElementById('findPackagesByBudgetBtn');
             const findPackagesByKwBtn = document.getElementById('findPackagesByKwBtn');
             const startOverBtn = document.getElementById('startOverBtn');
@@ -276,35 +279,29 @@
             const downloadBtnText = document.getElementById('downloadBtnText');
             const downloadSpinner = document.getElementById('downloadSpinner');
 
-            // --- Get Customer Detail Inputs ---
+            // --- Inputs & Validation ---
             const customerNameInput = document.getElementById('customerName');
             const customerAddressInput = document.getElementById('customerAddress');
-            
-            // --- Get Form and Error Spans for validation ---
             const pdfForm = document.getElementById('pdfForm');
             const nameError = document.getElementById('nameError');
             const addressError = document.getElementById('addressError');
             
-            // --- Store the currently selected package ---
+            // --- State ---
             let currentSelectedPackage = null;
             
-            // --- Get Tab Elements ---
+            // --- Tabs ---
             const budgetTabBtn = document.getElementById('budgetTabBtn');
             const kwTabBtn = document.getElementById('kwTabBtn');
             const budgetTabContent = document.getElementById('budgetTabContent');
             const kwTabContent = document.getElementById('kwTabContent');
             
-            // --- Get Package List Elements ---
+            // --- Lists & Details ---
             const packagesList = document.getElementById('packagesList');
             const packagesTitle = document.getElementById('packagesTitle');
             const noPackagesMessage = document.getElementById('noPackagesMessage');
-
-            // --- Get Detail View Elements ---
             const detailName = document.getElementById('detail-name');
             const detailPrice = document.getElementById('detail-price');
             const detailProducts = document.getElementById('detail-products');
-            
-            // --- Get Search Inputs ---
             const kwSelect = document.getElementById('kwSelect');
 
 
@@ -323,47 +320,39 @@
                 budgetTabContent.classList.add('hidden');
             });
 
-            // --- Function to filter by Budget Range ---
+            // --- Filter Functions ---
             function findPackagesByBudget() {
                 const selectedRange = document.querySelector('input[name="budgetRange"]:checked').value;
                 let filteredPackages;
-
                 if (selectedRange === 'all') {
                     filteredPackages = allPackages;
                 } else {
                     const maxBudget = parseInt(selectedRange, 10);
                     filteredPackages = allPackages.filter(pkg => pkg.price <= maxBudget);
                 }
-                
                 displayPackages(filteredPackages);
             }
 
-            // --- Function to filter by kW Size ---
             function findPackagesByKw() {
                 const selectedKw = kwSelect.value;
                 let filteredPackages;
-
                 if (selectedKw === 'all') {
                     filteredPackages = allPackages;
                 } else {
                     const kw = parseFloat(selectedKw);
                     filteredPackages = allPackages.filter(pkg => pkg.kw === kw);
                 }
-                
                 displayPackages(filteredPackages);
             }
 
-            // --- Function to display filtered packages ---
+            // --- UI Display Functions ---
             function displayPackages(packages) {
-                packagesList.innerHTML = ''; // Clear old results
-
+                packagesList.innerHTML = ''; 
                 if (packages.length === 0) {
                     noPackagesMessage.classList.remove('hidden');
                 } else {
                     noPackagesMessage.classList.add('hidden');
-                    // Sort by price, ascending
                     packages.sort((a, b) => a.price - b.price);
-                    
                     packages.forEach(pkg => {
                         const card = document.createElement('div');
                         card.className = 'border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-lg transition-shadow duration-300';
@@ -382,7 +371,6 @@
                     });
                 }
 
-                // Attach event listeners to new buttons
                 document.querySelectorAll('.view-details-btn').forEach(button => {
                     button.addEventListener('click', (e) => {
                         const packageId = parseInt(e.target.dataset.id, 10);
@@ -390,69 +378,68 @@
                     });
                 });
 
-                // Show the packages section
                 budgetSection.classList.add('hidden');
                 detailsSection.classList.add('hidden');
                 packagesSection.classList.remove('hidden');
             }
 
-            // --- Function to show package details ---
             function showPackageDetails(packageId) {
                 currentSelectedPackage = allPackages.find(pkg => pkg.id === packageId);
                 if (!currentSelectedPackage) return;
-
                 detailName.textContent = currentSelectedPackage.name;
                 detailPrice.textContent = `${currentSelectedPackage.price.toLocaleString()}`;
-                
-                detailProducts.innerHTML = ''; // Clear old list
+                detailProducts.innerHTML = '';
                 currentSelectedPackage.products.forEach(product => {
                     const li = document.createElement('li');
                     li.textContent = product;
                     detailProducts.appendChild(li);
                 });
-
                 packagesSection.classList.add('hidden');
                 detailsSection.classList.remove('hidden');
             }
             
-            // --- Function to go back to package list ---
             function showPackageList() {
                 detailsSection.classList.add('hidden');
                 packagesSection.classList.remove('hidden');
                 currentSelectedPackage = null;
-                
-                // Clear and hide validation errors
                 nameError.classList.add('hidden');
                 addressError.classList.add('hidden');
             }
 
-            // --- Function to go back to search inputs ---
             function showBudgetInput() {
                 detailsSection.classList.add('hidden');
                 packagesSection.classList.add('hidden');
                 budgetSection.classList.remove('hidden');
-                
-                // Reset inputs to default state
                 kwSelect.value = 'all';
                 document.getElementById('range-all').checked = true;
-                customerNameInput.value = ''; // Clear customer name
-                customerAddressInput.value = ''; // Clear customer address
-                nameError.classList.add('hidden'); // Hide errors
-                addressError.classList.add('hidden'); // Hide errors
-                
-                // Reset tabs to default
+                customerNameInput.value = '';
+                customerAddressInput.value = '';
+                nameError.classList.add('hidden');
+                addressError.classList.add('hidden');
                 budgetTabBtn.click();
             }
             
-            // --- NEW: Function to handle PDF form validation and generation ---
-            function handlePdfGeneration(event) {
-                event.preventDefault(); // Stop form from submitting
-                
-                // Reset errors
+            // --- PDF Generation Logic ---
+            
+            // Helper function to download bytes as a file
+            function downloadBlob(bytes, fileName, mimeType) {
+                const blob = new Blob([bytes], { type: mimeType });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            }
+
+            // Main handler for form submission
+            async function handlePdfGeneration(event) {
+                event.preventDefault(); 
                 nameError.classList.add('hidden');
                 addressError.classList.add('hidden');
-                
                 let isValid = true;
+                
                 const customerName = customerNameInput.value.trim();
                 const customerAddress = customerAddressInput.value.trim();
                 
@@ -460,192 +447,218 @@
                     nameError.classList.remove('hidden');
                     isValid = false;
                 }
-                
                 if (customerAddress === '') {
                     addressError.classList.remove('hidden');
                     isValid = false;
                 }
                 
-                if (isValid) {
-                    generatePDF(customerName, customerAddress);
+                if (!isValid || !currentSelectedPackage) {
+                    return;
                 }
-            }
-
-            // --- Function to generate and download the PDF ---
-            async function generatePDF(customerName, customerAddress) { // Now accepts parameters
-                if (!currentSelectedPackage) return;
-
-                // Use the jsPDF library
-                const { jsPDF } = window.jspdf;
 
                 // Show loading state
                 downloadBtnText.textContent = 'Generating...';
                 downloadSpinner.classList.remove('hidden');
                 downloadPdfBtn.disabled = true;
 
+                // NEW: URL for your template from GitHub Raw
+                const templateUrl = 'https://raw.githubusercontent.com/imeths/SELTech/main/SELTech%20Quotation.pdf';
+                
                 try {
-                    // Create a new PDF document (A4 size)
-                    const pdf = new jsPDF('p', 'mm', 'a4');
-                    const pageWidth = pdf.internal.pageSize.getWidth();
-                    const pageHeight = pdf.internal.pageSize.getHeight();
-                    const pageMargin = 20;
-                    let yPos = pageMargin;
+                    // Load the PDF-LIB functions
+                    const { PDFDocument } = window.PDFLib;
 
-                    // --- 1. Add Logo ---
-                    const logoUrl = 'https://i.postimg.cc/KvgCmtJG/SELTech-Logo-App.png';
-                    
-                    try {
-                        // UPDATED: Render as a 30x30 square
-                        pdf.addImage(logoUrl, 'PNG', pageMargin, yPos, 30, 30); // (URL, Format, x, y, width, height)
-                    
-                    } catch (imgError) {
-                        console.error("Error adding logo to PDF:", imgError);
-                        // --- Placeholder Logo ---
-                        pdf.setFillColor(230, 230, 230); // Light gray
-                        pdf.rect(pageMargin, yPos, 30, 30, 'F'); // Draw a 30x30mm gray box
-                        pdf.setTextColor(150, 150, 150);
-                        pdf.setFontSize(10);
-                        pdf.text('Logo Load Failed', pageMargin + 10, yPos + 16, { align: 'center' });
-                        // --- End Placeholder ---
-                    }
-                    // --- END OF LOGO BLOCK ---
+                    // 1. Create our new quote page in memory
+                    const quotePageBytes = await createQuotePage(customerName, customerAddress);
 
-
-                    // --- 2. Add Company Info (Right-aligned) ---
-                    pdf.setFontSize(10);
-                    pdf.setFont('helvetica', 'normal');
-                    pdf.setTextColor(80, 80, 80);
-                    pdf.text('SELTech International', pageWidth - pageMargin, yPos + 5, { align: 'right' });
-                    pdf.text('30, Pepiliyana Rd, Nugegoda', pageWidth - pageMargin, yPos + 10, { align: 'right' });
-                    pdf.text('011 273 9933 / 077 731 5605', pageWidth - pageMargin, yPos + 15, { align: 'right' });
-                    
-                    
-                    // --- 3. Add Customer Details (if provided) ---
-                    // UPDATED: yPos starts lower to account for square logo
-                    yPos = 60; // Move cursor down below logo
-                    pdf.setFontSize(12);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.setTextColor(80, 80, 80);
-                    pdf.text('PREPARED FOR:', pageMargin, yPos);
-                    
-                    yPos += 6;
-                    pdf.setFont('helvetica', 'normal');
-                    pdf.setTextColor(20, 20, 20);
-                    pdf.text(customerName, pageMargin, yPos);
-                    
-                    yPos += 6;
-                    // Use splitTextToSize for potentially long addresses
-                    const addressLines = pdf.splitTextToSize(customerAddress, 80); // 80mm wide column
-                    pdf.text(addressLines, pageMargin, yPos);
-                    yPos += (addressLines.length * 6); // Adjust yPos based on number of lines
-                    
-                    yPos += 10; // Add padding after the customer block
-
-
-                    // --- 4. Add Title & Date ---
-                    pdf.setFontSize(22);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.setTextColor(30, 58, 138); // text-blue-800
-                    pdf.text('Solar Package Quotation', pageMargin, yPos);
-                    
-                    yPos += 8;
-                    pdf.setFontSize(12);
-                    pdf.setFont('helvetica', 'normal');
-                    pdf.setTextColor(50, 50, 50);
-                    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-                    pdf.text(`Date Issued: ${date}`, pageMargin, yPos);
-
-                    yPos += 15; // Add space
-
-                    // --- 5. Add Package Details Box ---
-                    // UPDATED: Box is now taller (30mm)
-                    pdf.setFillColor(249, 250, 251); // bg-gray-50
-                    pdf.setDrawColor(229, 231, 235); // border-gray-200
-                    pdf.roundedRect(pageMargin, yPos, pageWidth - (pageMargin * 2), 30, 3, 3, 'FD'); // FD = Fill and Draw
-                    
-                    pdf.setFontSize(14);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.setTextColor(20, 20, 20);
-                    pdf.text(currentSelectedPackage.name, pageMargin + 10, yPos + 10);
-                    
-                    // NEW: Added System Size
-                    pdf.setFontSize(11);
-                    pdf.setFont('helvetica', 'normal');
-                    pdf.setTextColor(80, 80, 80);
-                    pdf.text(`System Size: ${currentSelectedPackage.kw} kW`, pageMargin + 10, yPos + 18);
-                    
-                    // UPDATED: Position of Price
-                    pdf.setFontSize(16);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.setTextColor(30, 58, 138);
-                    pdf.text(`${currentSelectedPackage.price.toLocaleString()}`, pageWidth - pageMargin - 10, yPos + 14, { align: 'right' });
-                    
-                    yPos += 40; // Move cursor out of the taller box
-
-                    // --- 6. Add Products Table ---
-                    pdf.setFontSize(14);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.setTextColor(50, 50, 50);
-                    pdf.text('Products Included', pageMargin, yPos);
-                    
-                    yPos += 8;
-                    pdf.setFontSize(11);
-                    pdf.setFont('helvetica', 'normal');
-                    pdf.setTextColor(20, 20, 20);
-                    
-                    const lineHeight = 6;
-                    const listStartY = yPos;
-                    
-                    currentSelectedPackage.products.forEach((product, index) => {
-                        // Check if item will go off the page
-                        if (yPos + lineHeight > pageHeight - pageMargin) {
-                            pdf.addPage();
-                            yPos = pageMargin; // Reset yPos for new page
-                            pdf.setFontSize(11); // Reset font
-                            pdf.setFont('helvetica', 'normal');
+                    // 2. Fetch your existing PDF template
+                    const templateBytes = await fetch(templateUrl).then(res => {
+                        if (!res.ok) {
+                            throw new Error(`Failed to fetch PDF template (Status: ${res.status})`);
                         }
-                        
-                        pdf.text('•', pageMargin + 5, yPos); // Bullet point
-                        
-                        // Handle multi-line products
-                        const productLines = pdf.splitTextToSize(product, pageWidth - (pageMargin * 2) - 15); // Get width minus margins and bullet
-                        pdf.text(productLines, pageMargin + 10, yPos);
-                        
-                        yPos += (productLines.length * lineHeight) + 2; // Move cursor down
+                        return res.arrayBuffer();
                     });
 
-                    // --- 7. Add Footer ---
-                    const footerY = pdf.internal.pageSize.getHeight() - 15;
-                    pdf.setFontSize(10);
-                    pdf.setFont('helvetica', 'normal');
-                    pdf.setTextColor(150, 150, 150);
-                    
-                    pdf.line(pageMargin, footerY - 5, pageWidth - pageMargin, footerY - 5); // Footer line
-                    pdf.text('Thank you for choosing SELTech International.', pageWidth / 2, footerY, { align: 'center' });
-                    
-                    // 8. Save the PDF
+                    // 3. Create a new, blank PDF document
+                    const finalPdfDoc = await PDFDocument.create();
+
+                    // 4. Load the template and our new quote
+                    const templateDoc = await PDFDocument.load(templateBytes);
+                    const quoteDoc = await PDFDocument.load(quotePageBytes);
+
+                    // 5. Copy pages 1-6 from the template
+                    const templatePageIndices1 = [0, 1, 2, 3, 4, 5]; // Pages 1-6
+                    const copiedPages1 = await finalPdfDoc.copyPages(templateDoc, templatePageIndices1);
+                    copiedPages1.forEach(page => finalPdfDoc.addPage(page));
+
+                    // 6. Copy our new quote page (it's the only page, so index 0)
+                    const [newQuotePage] = await finalPdfDoc.copyPages(quoteDoc, [0]);
+                    finalPdfDoc.addPage(newQuotePage); // This is now Page 7
+
+                    // 7. Copy pages 7-10 from the template
+                    const templatePageIndices2 = [6, 7, 8, 9]; // Pages 7-10
+                    const copiedPages2 = await finalPdfDoc.copyPages(templateDoc, templatePageIndices2);
+                    copiedPages2.forEach(page => finalPdfDoc.addPage(page));
+
+                    // 8. Save the final merged PDF
+                    const finalPdfBytes = await finalPdfDoc.save();
+
+                    // 9. Trigger the download
                     const fileName = `SELTech_Quotation_${currentSelectedPackage.name.replace(/ /g, '_')}.pdf`;
-                    pdf.save(fileName);
-                    
+                    downloadBlob(finalPdfBytes, fileName, 'application/pdf');
+
                 } catch (error) {
-                    console.error("Error generating PDF:", error);
-                    // Handle error state (optional)
+                    console.error("Error generating merged PDF:", error);
+                    downloadBtnText.textContent = 'Error! Try Again.';
+                    // Don't use alert()
+                    // alert('Failed to generate PDF. Please check your internet connection and try again.');
                 } finally {
                     // Reset button state
-                    downloadBtnText.textContent = 'Download as PDF';
-                    downloadSpinner.classList.add('hidden');
-                    downloadPdfBtn.disabled = false;
+                    // Keep the error message if it failed, otherwise reset
+                    if (downloadBtnText.textContent.includes('Error')) {
+                         setTimeout(() => {
+                            downloadBtnText.textContent = 'Download as PDF';
+                            downloadSpinner.classList.add('hidden');
+                            downloadPdfBtn.disabled = false;
+                         }, 3000); // Reset after 3 seconds
+                    } else {
+                        downloadBtnText.textContent = 'Download as PDF';
+                        downloadSpinner.classList.add('hidden');
+                        downloadPdfBtn.disabled = false;
+                    }
                 }
+            }
+            
+            // This function creates the new PDF page in memory
+            async function createQuotePage(customerName, customerAddress) {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const pageMargin = 20;
+                let yPos = pageMargin;
+
+                // 1. Add Logo (from URL)
+                const logoUrl = 'https://i.postimg.cc/KvgCmtJG/SELTech-Logo-App.png';
+                try {
+                    // addImage handles URLs. We keep the try/catch in case of network/CORS failure.
+                    pdf.addImage(logoUrl, 'PNG', pageMargin, yPos, 30, 30);
+                } catch (imgError) {
+                    console.error("Error adding logo to PDF:", imgError);
+                    pdf.setFillColor(230, 230, 230);
+                    pdf.rect(pageMargin, yPos, 30, 30, 'F');
+                    pdf.setTextColor(150, 150, 150);
+                    pdf.setFontSize(10);
+                    pdf.text('Logo Load Failed', pageMargin + 15, yPos + 16, { align: 'center' });
+                }
+
+                // 2. Add Company Info
+                pdf.setFontSize(10);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(80, 80, 80);
+                pdf.text('SELTech International', pageWidth - pageMargin, yPos + 5, { align: 'right' });
+                pdf.text('30, Pepiliyana Rd, Nugegoda', pageWidth - pageMargin, yPos + 10, { align: 'right' });
+                pdf.text('011 273 9933 / 077 731 5605', pageWidth - pageMargin, yPos + 15, { align: 'right' });
+                
+                // 3. Add Customer Details
+                yPos = 60;
+                pdf.setFontSize(12);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(80, 80, 80);
+                pdf.text('PREPARED FOR:', pageMargin, yPos);
+                
+                yPos += 6;
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(20, 20, 20);
+                pdf.text(customerName, pageMargin, yPos);
+                
+                yPos += 6;
+                const addressLines = pdf.splitTextToSize(customerAddress, 80);
+                pdf.text(addressLines, pageMargin, yPos);
+                yPos += (addressLines.length * 6) + 10;
+
+                // 4. Add Title & Date
+                pdf.setFontSize(22);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(30, 58, 138); // Dark Blue
+                pdf.text('Solar Package Quotation', pageMargin, yPos);
+                
+                yPos += 8;
+                pdf.setFontSize(12);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(50, 50, 50);
+                const date = new Date().toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                pdf.text(`Date Issued: ${date}`, pageMargin, yPos);
+
+                yPos += 15;
+
+                // 5. Add Package Details Box
+                pdf.setFillColor(249, 250, 251); // gray-50
+                pdf.setDrawColor(229, 231, 235); // gray-200
+                pdf.roundedRect(pageMargin, yPos, pageWidth - (pageMargin * 2), 30, 3, 3, 'FD');
+                
+                pdf.setFontSize(14);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(20, 20, 20);
+                pdf.text(currentSelectedPackage.name, pageMargin + 10, yPos + 10);
+                
+                pdf.setFontSize(11);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(80, 80, 80);
+                pdf.text(`System Size: ${currentSelectedPackage.kw} kW`, pageMargin + 10, yPos + 18);
+                
+                pdf.setFontSize(16);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(30, 58, 138); // Dark Blue
+                pdf.text(`${currentSelectedPackage.price.toLocaleString()}`, pageWidth - pageMargin - 10, yPos + 14, { align: 'right' });
+                
+                yPos += 40;
+
+                // 6. Add Products Table
+                pdf.setFontSize(14);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(50, 50, 50);
+                pdf.text('Products Included', pageMargin, yPos);
+                
+                yPos += 8;
+                pdf.setFontSize(11);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(20, 20, 20);
+                
+                const lineHeight = 6;
+                
+                currentSelectedPackage.products.forEach((product, index) => {
+                    // Check if we need to add a new page
+                    if (yPos + lineHeight > pageHeight - pageMargin) {
+                        pdf.addPage();
+                        yPos = pageMargin;
+                        // Reset font settings for new page
+                        pdf.setFontSize(11);
+                        pdf.setFont('helvetica', 'normal');
+                    }
+                    pdf.text('•', pageMargin + 5, yPos);
+                    const productLines = pdf.splitTextToSize(product, pageWidth - (pageMargin * 2) - 15);
+                    pdf.text(productLines, pageMargin + 10, yPos);
+                    yPos += (productLines.length * lineHeight) + 2; // Add a little padding
+                });
+
+                // 7. Add Footer
+                const footerY = pdf.internal.pageSize.getHeight() - 15;
+                pdf.setFontSize(10);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(150, 150, 150);
+                pdf.line(pageMargin, footerY - 5, pageWidth - pageMargin, footerY - 5);
+                pdf.text('This is a dynamically generated quotation page.', pageWidth / 2, footerY, { align: 'center' });
+                
+                // 8. Return the PDF bytes
+                return pdf.output('arraybuffer');
             }
 
             // --- Attach Initial Event Listeners ---
             findPackagesByBudgetBtn.addEventListener('click', findPackagesByBudget);
             findPackagesByKwBtn.addEventListener('click', findPackagesByKw);
-            
             startOverBtn.addEventListener('click', showBudgetInput);
             backBtn.addEventListener('click', showPackageList);
-            
-            // NEW: Use form submit event for validation
             pdfForm.addEventListener('submit', handlePdfGeneration);
             
             // Set default tab on load
