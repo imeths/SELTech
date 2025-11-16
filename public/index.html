@@ -13,9 +13,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     
-    <!-- 3. PDF Generation Libraries (jsPDF and html2canvas) -->
+    <!-- 3. PDF Generation Library (jsPDF) - html2canvas is no longer needed -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         /* Apply the Inter font */
@@ -66,15 +65,15 @@
                 <div class="space-y-2">
                     <div class="flex items-center">
                         <input id="range-1" name="budgetRange" type="radio" value="700000" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-                        <label for="range-1" class="ml-3 block text-sm font-medium text-gray-700">Under Rs. 700,000</label>
+                        <label for="range-1" class="ml-3 block text-sm font-medium text-gray-700">Under 700,000</label>
                     </div>
                     <div class="flex items-center">
                         <input id="range-2" name="budgetRange" type="radio" value="900000" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-                        <label for="range-2" class="ml-3 block text-sm font-medium text-gray-700">Under Rs. 900,000</label>
+                        <label for="range-2" class="ml-3 block text-sm font-medium text-gray-700">Under 900,000</label>
                     </div>
                     <div class="flex items-center">
                         <input id="range-3" name="budgetRange" type="radio" value="1400000" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-                        <label for="range-3" class="ml-3 block text-sm font-medium text-gray-700">Under Rs. 1,400,000</label>
+                        <label for="range-3" class="ml-3 block text-sm font-medium text-gray-700">Under 1,400,000</label>
                     </div>
                     <div class="flex items-center">
                         <input id="range-all" name="budgetRange" type="radio" value="Infinity" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" checked>
@@ -121,7 +120,7 @@
         <!-- Step 3: Show Package Details -->
         <section id="detailsSection" class="hidden mt-6">
             
-            <!-- This inner div is what we will export to PDF -->
+            <!-- This inner div is no longer used for PDF generation, but still good for layout -->
             <div id="packageDetailsContent" class="p-6 border border-gray-200 rounded-lg bg-gray-50 mb-4">
                 <h2 id="detail-name" class="text-2xl font-bold text-blue-700 mb-2">Package Name</h2>
                 <p id="detail-price" class="text-xl font-semibold text-gray-900 mb-4">Price: 0</p>
@@ -373,9 +372,8 @@
             async function generatePDF() {
                 if (!currentSelectedPackage) return;
 
-                // Use the jsPDF and html2canvas libraries
+                // Use the jsPDF library
                 const { jsPDF } = window.jspdf;
-                const content = document.getElementById('packageDetailsContent');
                 
                 // Show loading state
                 downloadBtnText.textContent = 'Generating...';
@@ -383,45 +381,150 @@
                 downloadPdfBtn.disabled = true;
 
                 try {
-                    // 1. Use html2canvas to capture the content div as an image
-                    const canvas = await html2canvas(content, {
-                        scale: 2, // Improve resolution
-                        useCORS: true
-                    });
+                    // ===================================================================
+                    // === NATIVE PDF GENERATION (Option B) ===
+                    // ===================================================================
                     
-                    const imgData = canvas.toDataURL('image/png');
-                    
-                    // 2. Create a new PDF document (A4 size)
+                    // 1. Create a new PDF document (A4 size: 210mm wide x 297mm high)
                     const pdf = new jsPDF('p', 'mm', 'a4');
                     
-                    const pdfWidth = pdf.internal.pageSize.getWidth();
-                    const pdfHeight = pdf.internal.pageSize.getHeight();
-                    
-                    const imgWidth = canvas.width;
-                    const imgHeight = canvas.height;
-                    
-                    // Calculate ratio to fit the image on the page
-                    const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 20) / imgHeight); // -20 for 10mm margins
-                    
-                    const imgX = 10; // 10mm margin
-                    const imgY = 10; // 10mm margin
-                    const imgDisplayWidth = imgWidth * ratio;
-                    const imgDisplayHeight = imgHeight * ratio;
+                    // --- Define Constants ---
+                    const pageMargin = 15;
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const contentWidth = pageWidth - (pageMargin * 2);
+                    let yPos = 20; // This is our 'vertical cursor'
 
-                    // Add a title for the PDF
-                    pdf.setFontSize(20);
+                    // --- 2. Add Company Header ---
+                    
+                    // --- LOGO ---
+                    // !!!!!!!!!!!!!!!!!! IMPORTANT !!!!!!!!!!!!!!!!!!
+                    // You MUST replace this with a DIRECT, public URL to your logo (e.g., from Imgur)
+                    // The Google Drive link will NOT work due to security (CORS) policies.
+                    const logoUrl = 'https://postimg.cc/GBFRZspg'; 
+                    
+                    // --- Placeholder for Logo ---
+                    pdf.setDrawColor(150);
+                    pdf.setFillColor(240, 240, 240);
+                    pdf.rect(pageMargin, 15, 40, 20, 'FD'); // x, y, w, h, style
+                    pdf.setTextColor(150);
+                    pdf.setFontSize(10);
+                    pdf.text('Your Logo Here', pageMargin + 20, 26, { align: 'center' });
+                    
+                    /* // --- UNCOMMENT THIS BLOCK WHEN YOU HAVE A VALID logoUrl ---
+                    try {
+                        // Note: This requires the image to be hosted on a server that allows cross-origin requests (CORS)
+                        // Imgur.com is a good free option for this.
+                        pdf.addImage(logoUrl, 'PNG', pageMargin, 15, 40, 20); // x, y, w, h
+                    } catch (e) {
+                        console.error("Error loading logo:", e);
+                        pdf.text('Logo Failed to Load', pageMargin + 20, 26, { align: 'center' });
+                    }
+                    // --- END OF LOGO BLOCK ---
+                    */
+
+                    // --- Company Address & Contact ---
+                    pdf.setFontSize(10);
+                    pdf.setTextColor(50, 50, 50); // Dark gray
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text('SELTech International', pageWidth - pageMargin, yPos, { align: 'right' });
+                    
+                    yPos += 5;
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.text('30, Pepiliyana Rd, Nugegoda', pageWidth - pageMargin, yPos, { align: 'right' });
+                    yPos += 5;
+                    pdf.text('011 273 9933 / 077 731 5605', pageWidth - pageMargin, yPos, { align: 'right' });
+                    
+                    
+                    // --- 3. Add Title & Date ---
+                    yPos = 50; // Move cursor down past the header
+                    pdf.setFontSize(22);
+                    pdf.setFont('helvetica', 'bold');
                     pdf.setTextColor(30, 58, 138); // text-blue-800
-                    pdf.text("SELTech International", pdfWidth / 2, 15, { align: 'center' });
+                    pdf.text('Solar Package Quotation', pageMargin, yPos);
                     
-                    pdf.setFontSize(16);
-                    pdf.setTextColor(100, 100, 100);
-                    pdf.text("Solar Package Quotation", pdfWidth / 2, 22, { align: 'center' });
+                    yPos += 8;
+                    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                    pdf.setFontSize(12);
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setTextColor(80, 80, 80);
+                    pdf.text(`Date Issued: ${date}`, pageMargin, yPos);
 
-                    // Add the image of the package details
-                    pdf.addImage(imgData, 'PNG', imgX, 30, imgDisplayWidth, imgDisplayHeight);
+                    yPos += 15; // Add space
+
+                    // --- 4. Add Package Details Box ---
+                    pdf.setFillColor(249, 250, 251); // bg-gray-50
+                    pdf.setDrawColor(229, 231, 235); // border-gray-200
+                    pdf.roundedRect(pageMargin, yPos, contentWidth, 40, 3, 3, 'FD'); // x, y, w, h, rx, ry, style
                     
-                    // 3. Save the PDF
-                    const fileName = `SELTech_Package_${currentSelectedPackage.name.replace(/ /g, '_')}.pdf`;
+                    yPos += 10;
+                    pdf.setFontSize(16);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setTextColor(30, 58, 138); // text-blue-700
+                    pdf.text(currentSelectedPackage.name, pageMargin + 10, yPos);
+                    
+                    yPos += 10;
+                    pdf.setFontSize(12);
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setTextColor(20, 20, 20);
+                    pdf.text(currentSelectedPackage.description, pageMargin + 10, yPos);
+                    
+                    yPos += 10;
+                    pdf.setFontSize(16);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text(`Total Price: ${currentSelectedPackage.price.toLocaleString()}`, pageMargin + 10, yPos);
+                    
+                    yPos += 20; // Move cursor out of the box
+
+                    // --- 5. Add Products Table ---
+                    pdf.setFontSize(14);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setTextColor(50, 50, 50);
+                    pdf.text('Products Included', pageMargin, yPos);
+                    
+                    yPos += 8;
+                    
+                    // Table Header
+                    pdf.setFillColor(243, 244, 246); // bg-gray-100
+                    pdf.rect(pageMargin, yPos, contentWidth, 10, 'F'); // x, y, w, h, style
+                    pdf.setFontSize(12);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setTextColor(20, 20, 20);
+                    pdf.text('Item Description', pageMargin + 5, yPos + 7);
+                    
+                    yPos += 10;
+                    
+                    // Table Rows
+                    pdf.setFontSize(12);
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setDrawColor(229, 231, 235); // border-gray-200
+                    
+                    currentSelectedPackage.products.forEach(product => {
+                        // Check if we need to add a new page
+                        if (yPos > 270) { // 270mm is near the bottom of A4
+                            pdf.addPage();
+                            yPos = 20; // Reset Y-position for the new page
+                        }
+                        
+                        // Use splitTextToSize to handle long product names that need to wrap
+                        const lines = pdf.splitTextToSize(product, contentWidth - 10); // -10 for padding
+                        
+                        pdf.text(lines, pageMargin + 5, yPos + 7);
+                        
+                        const lineHeight = (lines.length * 7); // Calculate height of this row
+                        pdf.line(pageMargin, yPos + lineHeight + 3, pageWidth - pageMargin, yPos + lineHeight + 3); // Draw line under text
+                        yPos += lineHeight + 3; // Move cursor down
+                    });
+
+                    // --- 6. Add Footer ---
+                    const footerY = pdf.internal.pageSize.getHeight() - 15;
+                    pdf.setFontSize(10);
+                    pdf.setTextColor(150, 150, 150);
+                    pdf.setDrawColor(200, 200, 200);
+                    pdf.line(pageMargin, footerY - 5, pageWidth - pageMargin, footerY - 5); // Footer line
+                    pdf.text('Thank you for choosing SELTech International.', pageWidth / 2, footerY, { align: 'center' });
+                    
+                    // 7. Save the PDF
+                    const fileName = `SELTech_Quotation_${currentSelectedPackage.name.replace(/ /g, '_')}.pdf`;
                     pdf.save(fileName);
 
                 } catch (error) {
