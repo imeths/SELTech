@@ -270,7 +270,7 @@
             function findPackagesByBudget() {
                 const selectedRange = document.querySelector('input[name="budgetRange"]:checked');
                 if (!selectedRange) {
-                    // This shouldn't happen as one is checked by default, but as a fallback:
+                    // This shouldn't happen as one is checked by default,but as a fallback:
                     noPackagesMessage.classList.remove('hidden');
                     packagesSection.classList.remove('hidden');
                     detailsSection.classList.add('hidden');
