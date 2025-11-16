@@ -1,149 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SELTech International - Solar Package Calculator</title>
-    
-    <!-- 1. Tailwind CSS for styling -->
+    <title>SELTech Solar Package Calculator</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- 2. Google Font (Inter) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- 3. PDF Generation Library (jsPDF) - html2canvas is no longer needed -->
+    <!-- jsPDF CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
+
     <style>
-        /* Apply the Inter font */
+        /* Custom Font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Simple spinner for loading state */
+
+        /* Custom spinner for download button */
         .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
-            border-top: 4px solid #ffffff;
+            border-top-color: #fff;
             width: 20px;
             height: 20px;
-            animation: spin 1s linear infinite;
+            animation: spin 1s ease-in-out infinite;
         }
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Custom styles for active/inactive tabs */
+        .tab-btn.active {
+            border-bottom-color: #3b82f6; /* blue-500 */
+            color: #3b82f6;
+            font-weight: 600;
+        }
+        
+        .tab-btn {
+            border-bottom: 2px solid transparent;
         }
     </style>
 </head>
+
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
 
-    <main class="bg-white w-full max-w-2xl rounded-lg shadow-xl p-6 md:p-8">
-        
-        <!-- Header -->
-        <header class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-blue-800">SELTech International</h1>
-            <p class="text-lg text-gray-600">Find Your Perfect Solar Package</p>
+    <main class="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden" style="min-height: 500px;">
+        <!-- Header Section -->
+        <header class="p-6 bg-gradient-to-r from-blue-700 to-blue-900 text-white">
+            <!-- NEW: Logo added to the main page header -->
+            <img src="https://i.postimg.cc/KvgCmtJG/SELTech-Logo-App.png" alt="SELTech Logo" class="w-20 h-20 mx-auto rounded-md shadow-lg">
+            
+            <h1 class="text-3xl font-bold text-center mt-4">SELTech International</h1>
+            <p class="text-center text-blue-200 mt-1">Solar Package Calculator</p>
         </header>
 
-        <!-- Step 1: Budget Input -->
-        <section id="budgetSection" class="space-y-4">
+        <!-- Search Section -->
+        <section id="budgetSection" class="p-6 md:p-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-5 text-center">Find Your Perfect Solar Package</h2>
             
-            <!-- Tab Buttons -->
-            <div class="flex border-b border-gray-200">
-                <button id="budgetTabBtn" class="flex-1 py-2 px-4 text-center font-medium text-white bg-blue-600 rounded-t-lg focus:outline-none">
-                    Search by Budget
-                </button>
-                <button id="kwTabBtn" class="flex-1 py-2 px-4 text-center font-medium text-gray-500 bg-gray-100 rounded-t-lg hover:bg-gray-200 focus:outline-none">
-                    Search by Size (kW)
-                </button>
+            <!-- Tab Navigation -->
+            <div class="mb-6 border-b border-gray-200">
+                <nav class="flex -mb-px" aria-label="Tabs">
+                    <button id="budgetTabBtn" class="tab-btn active w-1/2 py-4 px-1 text-center text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        Search by Budget
+                    </button>
+                    <button id="kwTabBtn" class="tab-btn w-1/2 py-4 px-1 text-center text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        Search by Size (kW)
+                    </button>
+                </nav>
             </div>
-
-            <!-- Budget Search Panel -->
-            <div id="budgetSearch" class="space-y-4 pt-4">
-                <label class="block text-sm font-medium text-gray-700">Select your budget range:</label>
-                <div class="space-y-2">
-                    <div class="flex items-center">
-                        <input id="range-1" name="budgetRange" type="radio" value="700000" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-                        <label for="range-1" class="ml-3 block text-sm font-medium text-gray-700">Under 700,000</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input id="range-2" name="budgetRange" type="radio" value="900000" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-                        <label for="range-2" class="ml-3 block text-sm font-medium text-gray-700">Under 900,000</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input id="range-3" name="budgetRange" type="radio" value="1400000" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-                        <label for="range-3" class="ml-3 block text-sm font-medium text-gray-700">Under 1,400,000</label>
-                    </div>
-                    <div class="flex items-center">
-                        <input id="range-all" name="budgetRange" type="radio" value="Infinity" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" checked>
-                        <label for="range-all" class="ml-3 block text-sm font-medium text-gray-700">Show All Packages</label>
-                    </div>
+            
+            <!-- Tab Content -->
+            <div>
+                <!-- Budget Range Tab Content -->
+                <div id="budgetTabContent">
+                    <fieldset class="space-y-4">
+                        <legend class="sr-only">Budget Range</legend>
+                        <div class="relative flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="range-700k" name="budgetRange" type="radio" value="700000" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="range-700k" class="font-medium text-gray-700">Under 700,000</label>
+                            </div>
+                        </div>
+                        <div class="relative flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="range-900k" name="budgetRange" type="radio" value="900000" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="range-900k" class="font-medium text-gray-700">Under 900,000</label>
+                            </div>
+                        </div>
+                        <div class="relative flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="range-1400k" name="budgetRange" type="radio" value="1400000" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="range-1400k" class="font-medium text-gray-700">Under 1,400,000</label>
+                            </div>
+                        </div>
+                        <div class="relative flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="range-all" name="budgetRange" type="radio" value="all" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300" checked>
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="range-all" class="font-medium text-gray-700">Show All Packages</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <button id="findPackagesByBudgetBtn"
+                        class="w-full mt-6 bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                        Find Packages
+                    </button>
                 </div>
-                <button id="findPackagesByBudgetBtn"
-                        class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-                    Find Packages
-                </button>
-            </div>
-
-            <!-- kW Search Panel (Hidden by default) -->
-            <div id="kwSearch" class="hidden space-y-4 pt-4">
-                <div>
-                    <label for="kwSelect" class="block text-sm font-medium text-gray-700 mb-1">Select system size:</label>
-                    <select id="kwSelect" name="kwSelect"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                
+                <!-- kW Size Tab Content (Hidden by default) -->
+                <div id="kwTabContent" class="hidden">
+                    <label for="kwSelect" class="block text-sm font-medium text-gray-700">Select System Size</label>
+                    <select id="kwSelect" name="kwSelect" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="all">Show All Sizes</option>
-                        <option value="3.3">3.3kW Systems</option>
-                        <option value="5">5kW Systems</option>
+                        <option value="3.3">3.3 kW</option>
+                        <option value="5">5 kW</option>
                     </select>
+                    <button id="findPackagesByKwBtn"
+                        class="w-full mt-6 bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                        Find Packages
+                    </button>
                 </div>
-                <button id="findPackagesByKwBtn"
-                        class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-                    Find by Size
-                </button>
             </div>
         </section>
 
-        <!-- Step 2: Show Packages -->
-        <section id="packagesSection" class="hidden mt-6">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Available Packages</h2>
-            <div id="packageList" class="space-y-3">
-                <!-- Package items will be injected here by JavaScript -->
+        <!-- Packages List Section -->
+        <section id="packagesSection" class="p-6 md:p-8 hidden">
+            <h2 id="packagesTitle" class="text-2xl font-semibold text-gray-800 mb-5 text-center">Available Packages</h2>
+            <div id="packagesList" class="space-y-4">
+                <!-- Package cards will be injected here by JavaScript -->
             </div>
-            <p id="noPackagesMessage" class="text-gray-500 text-center hidden">No packages found for your selection.</p>
+            <div id="noPackagesMessage" class="text-center text-gray-500 py-8 hidden">
+                <p class="text-lg">No packages found for your selection.</p>
+                <p class="text-sm">Please try a different range or system size.</p>
+            </div>
             <button id="startOverBtn"
-                    class="w-full mt-4 bg-gray-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-gray-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">
+                class="w-full mt-6 bg-gray-500 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-gray-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">
                 Start Over
             </button>
         </section>
 
-        <!-- Step 3: Show Package Details -->
-        <section id="detailsSection" class="hidden mt-6">
-            
-            <!-- This inner div is no longer used for PDF generation, but still good for layout -->
-            <div id="packageDetailsContent" class="p-6 border border-gray-200 rounded-lg bg-gray-50 mb-4">
-                <h2 id="detail-name" class="text-2xl font-bold text-blue-700 mb-2">Package Name</h2>
-                <p id="detail-price" class="text-xl font-semibold text-gray-900 mb-4">Price: 0</p>
-                <p id="detail-description" class="text-gray-700 mb-4">Package description goes here.</p>
-                
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">Products Included:</h3>
+        <!-- Package Details Section -->
+        <section id="detailsSection" class="p-6 md:p-8 hidden">
+            <!-- Details will be injected here -->
+            <div id="packageDetailContent">
+                <h2 id="detail-name" class="text-3xl font-bold text-gray-900 text-center">Package Name</h2>
+                <p id="detail-price" class="text-2xl font-semibold text-blue-700 text-center mt-2">Price</p>
+
+                <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3 border-b pb-2">What's Included:</h3>
                 <ul id="detail-products" class="list-disc list-inside text-gray-700 space-y-1">
                     <!-- Product items will be injected here by JavaScript -->
                 </ul>
             </div>
             
-            <!-- Action Buttons for Details View -->
-            <div class="flex flex-col sm:flex-row gap-3">
-                <button id="downloadPdfBtn"
-                        class="flex-1 bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 flex items-center justify-center gap-2">
-                    <span id="downloadBtnText">Download as PDF</span>
-                    <div id="downloadSpinner" class="spinner hidden"></div>
-                </button>
-                <button id="backBtn"
-                        class="flex-1 bg-gray-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-gray-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">
-                    Back to List
-                </button>
-            </div>
+            <!-- NEW: Customer Details for PDF (wrapped in a form for validation) -->
+            <form id="pdfForm" class="mt-6 mb-4 space-y-3" novalidate>
+                <h3 class="text-lg font-semibold text-gray-800">Personalize Your Quotation (Required)</h3>
+                <div>
+                    <label for="customerName" class="block text-sm font-medium text-gray-700">Your Name</label>
+                    <input type="text" id="customerName" name="customerName" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., John Doe" required>
+                    <span id="nameError" class="text-red-600 text-sm hidden mt-1">This field is required.</span>
+                </div>
+                <div>
+                    <label for="customerAddress" class="block text-sm font-medium text-gray-700">Your Address</label>
+                    <textarea id="customerAddress" name="customerAddress" rows="2" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 123 Main St, Colombo" required></textarea>
+                    <span id="addressError" class="text-red-600 text-sm hidden mt-1">This field is required.</span>
+                </div>
+            
+                <!-- Action Buttons for Details View -->
+                <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                    <button id="downloadPdfBtn" type="submit"
+                            class="flex-1 bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 flex items-center justify-center gap-2">
+                        <span id="downloadBtnText">Download as PDF</span>
+                        <div id="downloadSpinner" class="spinner hidden"></div>
+                    </button>
+                    <button id="backBtn" type="button"
+                            class="flex-1 bg-gray-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-gray-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">
+                        Back to List
+                    </button>
+                </div>
+            </form>
         </section>
 
     </main>
@@ -151,210 +199,234 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // ===================================================================
-            // === V V V  ADD YOUR SOLAR PACKAGES HERE  V V V ===
-            // ===================================================================
-            //
-            // - 'id': A unique number for each package.
-            // - 'name': The name of the package.
-            // - 'price': The *total price* of the package (as a number).
-            // - 'description': A short description.
-            // - 'products': A list of all items included in the package.
-            //
+            // --- Database of Solar Packages ---
+            // !!! EDIT THIS SECTION WITH YOUR PACKAGE DETAILS !!!
             const allPackages = [
                 {
                     id: 1,
-                    name: "3.3kW System (Chinese)",
+                    name: '3.3kW Chinese Package',
                     price: 600000,
-                    description: "A reliable 3.3kW system featuring cost-effective Chinese components.",
+                    kw: 3.3,
+                    brand: 'Chinese',
                     products: [
-                        "3.3kW Inverter (Chinese Brand)",
-                        "High-efficiency Solar Panels (Chinese Brand)",
-                        "Standard Mounting Kit",
-                        "Installation Included"
-                        // TODO: Update with your specific product details
+                        '10 x 330W Solar Panels (Chinese)',
+                        '1 x 3.3kW On-Grid Inverter (Chinese)',
+                        'Standard Mounting Structure',
+                        'DC/AC Cabling & Accessories',
+                        'Installation & Commissioning'
                     ]
                 },
                 {
                     id: 2,
-                    name: "3.3kW System (Korean)",
+                    name: '3.3kW Korean Package',
                     price: 850000,
-                    description: "A premium 3.3kW system featuring high-performance Korean components.",
+                    kw: 3.3,
+                    brand: 'Korean',
                     products: [
-                        "3.3kW Inverter (Korean Brand)",
-                        "Premium Solar Panels (Korean Brand)",
-                        "Durable Mounting Kit",
-                        "Premium Installation"
-                        // TODO: Update with your specific product details
+                        '8 x 415W Solar Panels (Korean Brand)',
+                        '1 x 3.3kW On-Grid Inverter (Korean Brand)',
+                        'Premium Mounting Structure',
+                        'DC/AC Cabling & Accessories',
+                        'Installation & Commissioning'
                     ]
                 },
                 {
                     id: 3,
-                    name: "5kW System (Chinese)",
+                    name: '5kW Chinese Package',
                     price: 900000,
-                    description: "A powerful 5kW system with cost-effective Chinese components for larger homes.",
+                    kw: 5,
+                    brand: 'Chinese',
                     products: [
-                        "5kW Inverter (Chinese Brand)",
-                        "High-efficiency Solar Panels (Chinese Brand)",
-                        "Standard Mounting Kit",
-                        "Installation Included"
-                        // TODO: Update with your specific product details
+                        '15 x 330W Solar Panels (Chinese)',
+                        '1 x 5kW On-Grid Inverter (Chinese)',
+                        'Standard Mounting Structure',
+                        'DC/AC Cabling & Accessories',
+                        'Installation & Commissioning'
                     ]
                 },
                 {
                     id: 4,
-                    name: "5kW System (Korean)",
+                    name: '5kW Korean Package',
                     price: 1300000,
-                    description: "A top-tier 5kW system with premium Korean components for maximum efficiency.",
+                    kw: 5,
+                    brand: 'Korean',
                     products: [
-                        "5kW Inverter (Korean Brand)",
-                        "Premium Solar Panels (Korean Brand)",
-                        "Durable Mounting Kit",
-                        "Premium Installation & Monitoring"
-                        // TODO: Update with your specific product details
+                        '12 x 415W Solar Panels (Korean Brand)',
+                        '1 x 5kW On-Grid Inverter (Korean Brand)',
+                        'Premium Mounting Structure',
+                        'DC/AC Cabling & Accessories',
+                        'Installation & Commissioning'
                     ]
                 }
             ];
-            // ===================================================================
-            // === ^ ^ ^  END OF PACKAGE DATA SECTION  ^ ^ ^ ===
-            // ===================================================================
+            // !!! END OF PACKAGE DATABASE !!!
 
 
-            // --- Get all our HTML elements ---
+            // --- Get UI Sections ---
             const budgetSection = document.getElementById('budgetSection');
             const packagesSection = document.getElementById('packagesSection');
             const detailsSection = document.getElementById('detailsSection');
-            
-            // Tab and Search Elements
-            const budgetTabBtn = document.getElementById('budgetTabBtn');
-            const kwTabBtn = document.getElementById('kwTabBtn');
-            const budgetSearch = document.getElementById('budgetSearch');
-            const kwSearch = document.getElementById('kwSearch');
-            
+
+            // --- Get Buttons ---
             const findPackagesByBudgetBtn = document.getElementById('findPackagesByBudgetBtn');
-            
-            const kwSelect = document.getElementById('kwSelect');
             const findPackagesByKwBtn = document.getElementById('findPackagesByKwBtn');
-            
-            const packageList = document.getElementById('packageList');
-            const noPackagesMessage = document.getElementById('noPackagesMessage');
-            
             const startOverBtn = document.getElementById('startOverBtn');
             const backBtn = document.getElementById('backBtn');
             const downloadPdfBtn = document.getElementById('downloadPdfBtn');
             const downloadBtnText = document.getElementById('downloadBtnText');
             const downloadSpinner = document.getElementById('downloadSpinner');
+
+            // --- Get Customer Detail Inputs ---
+            const customerNameInput = document.getElementById('customerName');
+            const customerAddressInput = document.getElementById('customerAddress');
+            
+            // --- Get Form and Error Spans for validation ---
+            const pdfForm = document.getElementById('pdfForm');
+            const nameError = document.getElementById('nameError');
+            const addressError = document.getElementById('addressError');
             
             // --- Store the currently selected package ---
             let currentSelectedPackage = null;
-
-            // --- Tab Switching Logic ---
-            budgetTabBtn.addEventListener('click', () => {
-                budgetSearch.classList.remove('hidden');
-                kwSearch.classList.add('hidden');
-                budgetTabBtn.classList.add('bg-blue-600', 'text-white');
-                budgetTabBtn.classList.remove('bg-gray-100', 'text-gray-500', 'hover:bg-gray-200');
-                kwTabBtn.classList.add('bg-gray-100', 'text-gray-500', 'hover:bg-gray-200');
-                kwTabBtn.classList.remove('bg-blue-600', 'text-white');
-            });
-
-            kwTabBtn.addEventListener('click', () => {
-                kwSearch.classList.remove('hidden');
-                budgetSearch.classList.add('hidden');
-                kwTabBtn.classList.add('bg-blue-600', 'text-white');
-                kwTabBtn.classList.remove('bg-gray-100', 'text-gray-500', 'hover:bg-gray-200');
-                budgetTabBtn.classList.add('bg-gray-100', 'text-gray-500', 'hover:bg-gray-200');
-                budgetTabBtn.classList.remove('bg-blue-600', 'text-white');
-            });
-
-
-            // --- Function to show packages based on budget range ---
-            function findPackagesByBudget() {
-                const selectedRange = document.querySelector('input[name="budgetRange"]:checked');
-                if (!selectedRange) {
-                    // This shouldn't happen as one is checked by default, but as a fallback:
-                    noPackagesMessage.classList.remove('hidden');
-                    packagesSection.classList.remove('hidden');
-                    detailsSection.classList.add('hidden');
-                    return;
-                }
-
-                const maxBudget = parseFloat(selectedRange.value);
-                const filteredPackages = allPackages.filter(pkg => pkg.price <= maxBudget);
-                displayPackageList(filteredPackages);
-            }
-
-            // --- Function to show packages based on kW input ---
-            function findPackagesByKw() {
-                const query = kwSelect.value;
-                if (query === "all") {
-                    displayPackageList(allPackages); // Show all if "all" is selected
-                    return;
-                }
-                
-                const filteredPackages = allPackages.filter(pkg => 
-                    pkg.name.toLowerCase().includes(query)
-                );
-                displayPackageList(filteredPackages);
-            }
             
-            // --- Generic function to display a list of packages ---
-            function displayPackageList(filteredPackages) {
-                packageList.innerHTML = ''; // Clear old list
+            // --- Get Tab Elements ---
+            const budgetTabBtn = document.getElementById('budgetTabBtn');
+            const kwTabBtn = document.getElementById('kwTabBtn');
+            const budgetTabContent = document.getElementById('budgetTabContent');
+            const kwTabContent = document.getElementById('kwTabContent');
+            
+            // --- Get Package List Elements ---
+            const packagesList = document.getElementById('packagesList');
+            const packagesTitle = document.getElementById('packagesTitle');
+            const noPackagesMessage = document.getElementById('noPackagesMessage');
 
-                if (filteredPackages.length > 0) {
-                    filteredPackages.forEach(pkg => {
-                        const packageItem = document.createElement('div');
-                        packageItem.className = 'p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 hover:shadow-md transition duration-200';
-                        packageItem.innerHTML = `
-                            <h3 class="text-lg font-semibold text-blue-700">${pkg.name}</h3>
-                            <p class="text-gray-600">Price: ${pkg.price.toLocaleString()}</p>
-                        `;
-                        // Add click listener to show details for this package
-                        packageItem.addEventListener('click', () => showPackageDetails(pkg));
-                        packageList.appendChild(packageItem);
-                    });
-                    noPackagesMessage.classList.add('hidden');
+            // --- Get Detail View Elements ---
+            const detailName = document.getElementById('detail-name');
+            const detailPrice = document.getElementById('detail-price');
+            const detailProducts = document.getElementById('detail-products');
+            
+            // --- Get Search Inputs ---
+            const kwSelect = document.getElementById('kwSelect');
+
+
+            // --- Tab Navigation Logic ---
+            budgetTabBtn.addEventListener('click', () => {
+                budgetTabBtn.classList.add('active');
+                kwTabBtn.classList.remove('active');
+                budgetTabContent.classList.remove('hidden');
+                kwTabContent.classList.add('hidden');
+            });
+            
+            kwTabBtn.addEventListener('click', () => {
+                kwTabBtn.classList.add('active');
+                budgetTabBtn.classList.remove('active');
+                kwTabContent.classList.remove('hidden');
+                budgetTabContent.classList.add('hidden');
+            });
+
+            // --- Function to filter by Budget Range ---
+            function findPackagesByBudget() {
+                const selectedRange = document.querySelector('input[name="budgetRange"]:checked').value;
+                let filteredPackages;
+
+                if (selectedRange === 'all') {
+                    filteredPackages = allPackages;
                 } else {
-                    noPackagesMessage.classList.remove('hidden');
+                    const maxBudget = parseInt(selectedRange, 10);
+                    filteredPackages = allPackages.filter(pkg => pkg.price <= maxBudget);
                 }
-
-                // Show the packages section and hide the others
-                budgetSection.classList.add('hidden');
-                packagesSection.classList.remove('hidden');
-                detailsSection.classList.add('hidden');
+                
+                displayPackages(filteredPackages);
             }
 
-            // --- Function to show details of a selected package ---
-            function showPackageDetails(pkg) {
-                currentSelectedPackage = pkg; // Store for PDF download
+            // --- Function to filter by kW Size ---
+            function findPackagesByKw() {
+                const selectedKw = kwSelect.value;
+                let filteredPackages;
 
-                // Populate the details card
-                document.getElementById('detail-name').textContent = pkg.name;
-                document.getElementById('detail-price').textContent = `Price: ${pkg.price.toLocaleString()}`;
-                document.getElementById('detail-description').textContent = pkg.description;
+                if (selectedKw === 'all') {
+                    filteredPackages = allPackages;
+                } else {
+                    const kw = parseFloat(selectedKw);
+                    filteredPackages = allPackages.filter(pkg => pkg.kw === kw);
+                }
                 
-                const productList = document.getElementById('detail-products');
-                productList.innerHTML = ''; // Clear old products
-                pkg.products.forEach(product => {
-                    const li = document.createElement('li');
-                    li.textContent = product;
-                    productList.appendChild(li);
+                displayPackages(filteredPackages);
+            }
+
+            // --- Function to display filtered packages ---
+            function displayPackages(packages) {
+                packagesList.innerHTML = ''; // Clear old results
+
+                if (packages.length === 0) {
+                    noPackagesMessage.classList.remove('hidden');
+                } else {
+                    noPackagesMessage.classList.add('hidden');
+                    // Sort by price, ascending
+                    packages.sort((a, b) => a.price - b.price);
+                    
+                    packages.forEach(pkg => {
+                        const card = document.createElement('div');
+                        card.className = 'border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-lg transition-shadow duration-300';
+                        card.innerHTML = `
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-xl font-semibold text-gray-800">${pkg.name}</h3>
+                                    <p class="text-lg font-medium text-blue-700 mt-1">${pkg.price.toLocaleString()}</p>
+                                </div>
+                                <button data-id="${pkg.id}" class="view-details-btn bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                                    View Details
+                                </button>
+                            </div>
+                        `;
+                        packagesList.appendChild(card);
+                    });
+                }
+
+                // Attach event listeners to new buttons
+                document.querySelectorAll('.view-details-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const packageId = parseInt(e.target.dataset.id, 10);
+                        showPackageDetails(packageId);
+                    });
                 });
 
-                // Show the details section and hide the packages list
+                // Show the packages section
+                budgetSection.classList.add('hidden');
+                detailsSection.classList.add('hidden');
+                packagesSection.classList.remove('hidden');
+            }
+
+            // --- Function to show package details ---
+            function showPackageDetails(packageId) {
+                currentSelectedPackage = allPackages.find(pkg => pkg.id === packageId);
+                if (!currentSelectedPackage) return;
+
+                detailName.textContent = currentSelectedPackage.name;
+                detailPrice.textContent = `${currentSelectedPackage.price.toLocaleString()}`;
+                
+                detailProducts.innerHTML = ''; // Clear old list
+                currentSelectedPackage.products.forEach(product => {
+                    const li = document.createElement('li');
+                    li.textContent = product;
+                    detailProducts.appendChild(li);
+                });
+
                 packagesSection.classList.add('hidden');
                 detailsSection.classList.remove('hidden');
             }
-
-            // --- Function to go back to the package list ---
+            
+            // --- Function to go back to package list ---
             function showPackageList() {
                 detailsSection.classList.add('hidden');
                 packagesSection.classList.remove('hidden');
-                currentSelectedPackage = null; // Clear selected package
+                currentSelectedPackage = null;
+                
+                // Clear and hide validation errors
+                nameError.classList.add('hidden');
+                addressError.classList.add('hidden');
             }
-            
-            // --- Function to go back to the budget input ---
+
+            // --- Function to go back to search inputs ---
             function showBudgetInput() {
                 detailsSection.classList.add('hidden');
                 packagesSection.classList.add('hidden');
@@ -363,193 +435,222 @@
                 // Reset inputs to default state
                 kwSelect.value = 'all';
                 document.getElementById('range-all').checked = true;
+                customerNameInput.value = ''; // Clear customer name
+                customerAddressInput.value = ''; // Clear customer address
+                nameError.classList.add('hidden'); // Hide errors
+                addressError.classList.add('hidden'); // Hide errors
                 
                 // Reset tabs to default
                 budgetTabBtn.click();
             }
+            
+            // --- NEW: Function to handle PDF form validation and generation ---
+            function handlePdfGeneration(event) {
+                event.preventDefault(); // Stop form from submitting
+                
+                // Reset errors
+                nameError.classList.add('hidden');
+                addressError.classList.add('hidden');
+                
+                let isValid = true;
+                const customerName = customerNameInput.value.trim();
+                const customerAddress = customerAddressInput.value.trim();
+                
+                if (customerName === '') {
+                    nameError.classList.remove('hidden');
+                    isValid = false;
+                }
+                
+                if (customerAddress === '') {
+                    addressError.classList.remove('hidden');
+                    isValid = false;
+                }
+                
+                if (isValid) {
+                    generatePDF(customerName, customerAddress);
+                }
+            }
 
             // --- Function to generate and download the PDF ---
-            async function generatePDF() {
+            async function generatePDF(customerName, customerAddress) { // Now accepts parameters
                 if (!currentSelectedPackage) return;
 
                 // Use the jsPDF library
                 const { jsPDF } = window.jspdf;
-                
+
                 // Show loading state
                 downloadBtnText.textContent = 'Generating...';
                 downloadSpinner.classList.remove('hidden');
                 downloadPdfBtn.disabled = true;
 
                 try {
-                    // ===================================================================
-                    // === NATIVE PDF GENERATION (Option B) ===
-                    // ===================================================================
-                    
-                    // 1. Create a new PDF document (A4 size: 210mm wide x 297mm high)
+                    // Create a new PDF document (A4 size)
                     const pdf = new jsPDF('p', 'mm', 'a4');
-                    
-                    // --- Define Constants ---
-                    const pageMargin = 15;
                     const pageWidth = pdf.internal.pageSize.getWidth();
-                    const contentWidth = pageWidth - (pageMargin * 2);
-                    let yPos = 20; // This is our 'vertical cursor'
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+                    const pageMargin = 20;
+                    let yPos = pageMargin;
 
-                    // --- 2. Add Company Header ---
-                    
-                    // --- LOGO ---
-                    // You MUST replace this with a DIRECT, public URL to your logo (e.g., from Imgur)
-                    // The Google Drive link will NOT work due to security (CORS) policies.
-                    const logoUrl = 'https://i.postimg.cc/KvgCmtJG/SELTech-Logo-App.png'; 
-                    
-                    // --- Placeholder for Logo ---
-                    pdf.setDrawColor(150);
-                    pdf.setFillColor(240, 240, 240);
-                    pdf.rect(pageMargin, 15, 40, 20, 'FD'); // x, y, w, h, style
-                    pdf.setTextColor(150);
-                    pdf.setFontSize(10);
-                    pdf.text('Your Logo Here', pageMargin + 20, 26, { align: 'center' });
-                    
+                    // --- 1. Add Logo ---
+                    const logoUrl = 'https://i.postimg.cc/KvgCmtJG/SELTech-Logo-App.png';
                     
                     try {
-                        // Note: This requires the image to be hosted on a server that allows cross-origin requests (CORS)
-                        // Imgur.com is a good free option for this.
-                        pdf.addImage(logoUrl, 'PNG', pageMargin, 15, 40, 20); // x, y, w, h
-                    } catch (e) {
-                        console.error("Error loading logo:", e);
-                        pdf.text('Logo Failed to Load', pageMargin + 20, 26, { align: 'center' });
+                        // UPDATED: Render as a 30x30 square
+                        pdf.addImage(logoUrl, 'PNG', pageMargin, yPos, 30, 30); // (URL, Format, x, y, width, height)
+                    
+                    } catch (imgError) {
+                        console.error("Error adding logo to PDF:", imgError);
+                        // --- Placeholder Logo ---
+                        pdf.setFillColor(230, 230, 230); // Light gray
+                        pdf.rect(pageMargin, yPos, 30, 30, 'F'); // Draw a 30x30mm gray box
+                        pdf.setTextColor(150, 150, 150);
+                        pdf.setFontSize(10);
+                        pdf.text('Logo Load Failed', pageMargin + 10, yPos + 16, { align: 'center' });
+                        // --- End Placeholder ---
                     }
                     // --- END OF LOGO BLOCK ---
-                    
-                    // --- Company Address & Contact ---
+
+
+                    // --- 2. Add Company Info (Right-aligned) ---
                     pdf.setFontSize(10);
-                    pdf.setTextColor(50, 50, 50); // Dark gray
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.text('SELTech International', pageWidth - pageMargin, yPos, { align: 'right' });
-                    
-                    yPos += 5;
                     pdf.setFont('helvetica', 'normal');
-                    pdf.text('30, Pepiliyana Rd, Nugegoda', pageWidth - pageMargin, yPos, { align: 'right' });
-                    yPos += 5;
-                    pdf.text('011 273 9933 / 077 731 5605', pageWidth - pageMargin, yPos, { align: 'right' });
+                    pdf.setTextColor(80, 80, 80);
+                    pdf.text('SELTech International', pageWidth - pageMargin, yPos + 5, { align: 'right' });
+                    pdf.text('30, Pepiliyana Rd, Nugegoda', pageWidth - pageMargin, yPos + 10, { align: 'right' });
+                    pdf.text('011 273 9933 / 077 731 5605', pageWidth - pageMargin, yPos + 15, { align: 'right' });
                     
                     
-                    // --- 3. Add Title & Date ---
-                    yPos = 50; // Move cursor down past the header
+                    // --- 3. Add Customer Details (if provided) ---
+                    // UPDATED: yPos starts lower to account for square logo
+                    yPos = 60; // Move cursor down below logo
+                    pdf.setFontSize(12);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setTextColor(80, 80, 80);
+                    pdf.text('PREPARED FOR:', pageMargin, yPos);
+                    
+                    yPos += 6;
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setTextColor(20, 20, 20);
+                    pdf.text(customerName, pageMargin, yPos);
+                    
+                    yPos += 6;
+                    // Use splitTextToSize for potentially long addresses
+                    const addressLines = pdf.splitTextToSize(customerAddress, 80); // 80mm wide column
+                    pdf.text(addressLines, pageMargin, yPos);
+                    yPos += (addressLines.length * 6); // Adjust yPos based on number of lines
+                    
+                    yPos += 10; // Add padding after the customer block
+
+
+                    // --- 4. Add Title & Date ---
                     pdf.setFontSize(22);
                     pdf.setFont('helvetica', 'bold');
                     pdf.setTextColor(30, 58, 138); // text-blue-800
                     pdf.text('Solar Package Quotation', pageMargin, yPos);
                     
                     yPos += 8;
-                    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
                     pdf.setFontSize(12);
                     pdf.setFont('helvetica', 'normal');
-                    pdf.setTextColor(80, 80, 80);
+                    pdf.setTextColor(50, 50, 50);
+                    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
                     pdf.text(`Date Issued: ${date}`, pageMargin, yPos);
 
                     yPos += 15; // Add space
 
-                    // --- 4. Add Package Details Box ---
+                    // --- 5. Add Package Details Box ---
+                    // UPDATED: Box is now taller (30mm)
                     pdf.setFillColor(249, 250, 251); // bg-gray-50
                     pdf.setDrawColor(229, 231, 235); // border-gray-200
-                    pdf.roundedRect(pageMargin, yPos, contentWidth, 40, 3, 3, 'FD'); // x, y, w, h, rx, ry, style
+                    pdf.roundedRect(pageMargin, yPos, pageWidth - (pageMargin * 2), 30, 3, 3, 'FD'); // FD = Fill and Draw
                     
-                    yPos += 10;
-                    pdf.setFontSize(16);
+                    pdf.setFontSize(14);
                     pdf.setFont('helvetica', 'bold');
-                    pdf.setTextColor(30, 58, 138); // text-blue-700
-                    pdf.text(currentSelectedPackage.name, pageMargin + 10, yPos);
-                    
-                    yPos += 10;
-                    pdf.setFontSize(12);
-                    pdf.setFont('helvetica', 'normal');
                     pdf.setTextColor(20, 20, 20);
-                    pdf.text(currentSelectedPackage.description, pageMargin + 10, yPos);
+                    pdf.text(currentSelectedPackage.name, pageMargin + 10, yPos + 10);
                     
-                    yPos += 10;
+                    // NEW: Added System Size
+                    pdf.setFontSize(11);
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setTextColor(80, 80, 80);
+                    pdf.text(`System Size: ${currentSelectedPackage.kw} kW`, pageMargin + 10, yPos + 18);
+                    
+                    // UPDATED: Position of Price
                     pdf.setFontSize(16);
                     pdf.setFont('helvetica', 'bold');
-                    pdf.text(`Total Price: ${currentSelectedPackage.price.toLocaleString()}`, pageMargin + 10, yPos);
+                    pdf.setTextColor(30, 58, 138);
+                    pdf.text(`${currentSelectedPackage.price.toLocaleString()}`, pageWidth - pageMargin - 10, yPos + 14, { align: 'right' });
                     
-                    yPos += 20; // Move cursor out of the box
+                    yPos += 40; // Move cursor out of the taller box
 
-                    // --- 5. Add Products Table ---
+                    // --- 6. Add Products Table ---
                     pdf.setFontSize(14);
                     pdf.setFont('helvetica', 'bold');
                     pdf.setTextColor(50, 50, 50);
                     pdf.text('Products Included', pageMargin, yPos);
                     
                     yPos += 8;
-                    
-                    // Table Header
-                    pdf.setFillColor(243, 244, 246); // bg-gray-100
-                    pdf.rect(pageMargin, yPos, contentWidth, 10, 'F'); // x, y, w, h, style
-                    pdf.setFontSize(12);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.setTextColor(20, 20, 20);
-                    pdf.text('Item Description', pageMargin + 5, yPos + 7);
-                    
-                    yPos += 10;
-                    
-                    // Table Rows
-                    pdf.setFontSize(12);
+                    pdf.setFontSize(11);
                     pdf.setFont('helvetica', 'normal');
-                    pdf.setDrawColor(229, 231, 235); // border-gray-200
+                    pdf.setTextColor(20, 20, 20);
                     
-                    currentSelectedPackage.products.forEach(product => {
-                        // Check if we need to add a new page
-                        if (yPos > 270) { // 270mm is near the bottom of A4
+                    const lineHeight = 6;
+                    const listStartY = yPos;
+                    
+                    currentSelectedPackage.products.forEach((product, index) => {
+                        // Check if item will go off the page
+                        if (yPos + lineHeight > pageHeight - pageMargin) {
                             pdf.addPage();
-                            yPos = 20; // Reset Y-position for the new page
+                            yPos = pageMargin; // Reset yPos for new page
+                            pdf.setFontSize(11); // Reset font
+                            pdf.setFont('helvetica', 'normal');
                         }
                         
-                        // Use splitTextToSize to handle long product names that need to wrap
-                        const lines = pdf.splitTextToSize(product, contentWidth - 10); // -10 for padding
+                        pdf.text('•', pageMargin + 5, yPos); // Bullet point
                         
-                        pdf.text(lines, pageMargin + 5, yPos + 7);
+                        // Handle multi-line products
+                        const productLines = pdf.splitTextToSize(product, pageWidth - (pageMargin * 2) - 15); // Get width minus margins and bullet
+                        pdf.text(productLines, pageMargin + 10, yPos);
                         
-                        const lineHeight = (lines.length * 7); // Calculate height of this row
-                        pdf.line(pageMargin, yPos + lineHeight + 3, pageWidth - pageMargin, yPos + lineHeight + 3); // Draw line under text
-                        yPos += lineHeight + 3; // Move cursor down
+                        yPos += (productLines.length * lineHeight) + 2; // Move cursor down
                     });
 
-                    // --- 6. Add Footer ---
+                    // --- 7. Add Footer ---
                     const footerY = pdf.internal.pageSize.getHeight() - 15;
                     pdf.setFontSize(10);
+                    pdf.setFont('helvetica', 'normal');
                     pdf.setTextColor(150, 150, 150);
-                    pdf.setDrawColor(200, 200, 200);
+                    
                     pdf.line(pageMargin, footerY - 5, pageWidth - pageMargin, footerY - 5); // Footer line
                     pdf.text('Thank you for choosing SELTech International.', pageWidth / 2, footerY, { align: 'center' });
                     
-                    // 7. Save the PDF
+                    // 8. Save the PDF
                     const fileName = `SELTech_Quotation_${currentSelectedPackage.name.replace(/ /g, '_')}.pdf`;
                     pdf.save(fileName);
-
+                    
                 } catch (error) {
                     console.error("Error generating PDF:", error);
-                    downloadBtnText.textContent = 'Error, Try Again';
+                    // Handle error state (optional)
                 } finally {
                     // Reset button state
-                    setTimeout(() => {
-                        downloadBtnText.textContent = 'Download as PDF';
-                        downloadSpinner.classList.add('hidden');
-                        downloadPdfBtn.disabled = false;
-                    }, 1000);
+                    downloadBtnText.textContent = 'Download as PDF';
+                    downloadSpinner.classList.add('hidden');
+                    downloadPdfBtn.disabled = false;
                 }
             }
 
-            // --- Attach Event Listeners ---
+            // --- Attach Initial Event Listeners ---
             findPackagesByBudgetBtn.addEventListener('click', findPackagesByBudget);
             findPackagesByKwBtn.addEventListener('click', findPackagesByKw);
             
             startOverBtn.addEventListener('click', showBudgetInput);
             backBtn.addEventListener('click', showPackageList);
-            downloadPdfBtn.addEventListener('click', generatePDF);
             
-            // Removed keypress listener as it's no longer needed
-
+            // NEW: Use form submit event for validation
+            pdfForm.addEventListener('submit', handlePdfGeneration);
+            
+            // Set default tab on load
+            budgetTabBtn.click();
         });
     </script>
-
 </body>
 </html>
