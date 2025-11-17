@@ -182,6 +182,10 @@
                     <textarea id="customerAddress" name="customerAddress" rows="2" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 123 Main St, Colombo" required></textarea>
                     <span id="addressError" class="text-red-600 text-sm hidden mt-1">This field is required.</span>
                 </div>
+                <div>
+                    <label for="customerDiscount" class="block text-sm font-medium text-gray-700">Discount Percentage (Optional)</label>
+                    <input type="number" id="customerDiscount" name="customerDiscount" min="0" max="100" step="0.1" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 5">
+                </div>
             
                 <!-- Action Buttons for Details View -->
                 <div class="flex flex-col sm:flex-row gap-3 pt-4">
@@ -416,6 +420,7 @@
                 customerAddressInput.value = '';
                 nameError.classList.add('hidden');
                 addressError.classList.add('hidden');
+                document.getElementById('customerDiscount').value = '';
                 budgetTabBtn.click();
             }
             
@@ -452,6 +457,9 @@
                     isValid = false;
                 }
                 
+                const discountInput = document.getElementById('customerDiscount').value;
+                const discountPercentage = parseFloat(discountInput) || 0; // Treat empty/invalid as 0
+
                 if (!isValid || !currentSelectedPackage) {
                     return;
                 }
@@ -469,7 +477,7 @@
                     const { PDFDocument } = window.PDFLib;
 
                     // 1. Create our new quote page in memory
-                    const quotePageBytes = await createQuotePage(customerName, customerAddress);
+                    const quotePageBytes = await createQuotePage(customerName, customerAddress, discountPercentage);
 
                     // 2. Fetch your existing PDF template
                     const templateBytes = await fetch(templateUrl).then(res => {
@@ -530,7 +538,7 @@
             }
             
             // This function creates the new PDF page in memory
-            async function createQuotePage(customerName, customerAddress) {
+            async function createQuotePage(customerName, customerAddress, discountPercentage) {
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pageWidth = pdf.internal.pageSize.getWidth();
@@ -593,10 +601,38 @@
                 yPos += 15;
 
                 // 5. Add Package Details Box
+                let boxContentHeight = 22; // Initial padding and name/size lines
+                
+                // Add lines for price, discount, and total
+                const originalPrice = currentSelectedPackage.price;
+                let discountAmount = 0;
+                let finalPrice = originalPrice;
+                
+                const priceLines = [];
+                priceLines.push({ label: 'Package Price:', value: originalPrice.toLocaleString() });
+                
+                if (discountPercentage > 0) {
+                    discountAmount = (originalPrice * discountPercentage) / 100;
+                    finalPrice = originalPrice - discountAmount;
+                    
+                    priceLines.push({ label: `Discount (${discountPercentage}%):`, value: `- ${discountAmount.toLocaleString()}` });
+                    priceLines.push({ label: 'Final Price:', value: finalPrice.toLocaleString(), isBold: true });
+                    
+                    boxContentHeight += (priceLines.length - 1) * 7; // Add height for extra lines
+                } else {
+                    // No discount, just show total
+                    priceLines.push({ label: 'Total Price:', value: finalPrice.toLocaleString(), isBold: true });
+                    boxContentHeight += 7;
+                }
+                
+                // Recalculate box height
+                const boxHeight = boxContentHeight + 10; // Add some final padding
+                
                 pdf.setFillColor(249, 250, 251); // gray-50
                 pdf.setDrawColor(229, 231, 235); // gray-200
-                pdf.roundedRect(pageMargin, yPos, pageWidth - (pageMargin * 2), 30, 3, 3, 'FD');
+                pdf.roundedRect(pageMargin, yPos, pageWidth - (pageMargin * 2), boxHeight, 3, 3, 'FD');
                 
+                // Package Name and Size
                 pdf.setFontSize(14);
                 pdf.setFont('helvetica', 'bold');
                 pdf.setTextColor(20, 20, 20);
@@ -607,13 +643,34 @@
                 pdf.setTextColor(80, 80, 80);
                 pdf.text(`System Size: ${currentSelectedPackage.kw} kW`, pageMargin + 10, yPos + 18);
                 
-                pdf.setFontSize(16);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setTextColor(30, 58, 138); // Dark Blue
-                pdf.text(`${currentSelectedPackage.price.toLocaleString()}`, pageWidth - pageMargin - 10, yPos + 14, { align: 'right' });
-                
-                yPos += 40;
+                // --- Price details on the right side ---
+                let priceYPos = yPos + 10;
+                const priceXLabel = pageWidth - pageMargin - 65; // X position for labels
+                const priceXValue = pageWidth - pageMargin - 10; // X position for values
 
+                priceLines.forEach((line, index) => {
+                    if (line.isBold) {
+                        pdf.setFontSize(14); // Make final price larger
+                        pdf.setFont('helvetica', 'bold');
+                        pdf.setTextColor(30, 58, 138); // Dark Blue
+                    } else {
+                        pdf.setFontSize(11);
+                        pdf.setFont('helvetica', 'normal');
+                        pdf.setTextColor(80, 80, 80);
+                    }
+                    
+                    pdf.text(line.label, priceXLabel, priceYPos, { align: 'left' });
+                    pdf.text(line.value, priceXValue, priceYPos, { align: 'right' });
+                    
+                    priceYPos += 7; // Spacing for each line
+                });
+
+                // Reset font
+                pdf.setFontSize(11);
+                pdf.setFont('helvetica', 'normal');
+
+                yPos += boxHeight + 10; // Move yPos down past the box
+                
                 // 6. Add Products Table
                 pdf.setFontSize(14);
                 pdf.setFont('helvetica', 'bold');
