@@ -9,57 +9,30 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- PDF LIBRARIES -->
-    <!-- jsPDF (for CREATING the new page) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- NEW: pdf-lib (for LOADING and MERGING existing PDFs) -->
     <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
 
-
     <style>
-        /* Custom Font */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        /* Custom spinner for download button */
+        body { font-family: 'Inter', sans-serif; }
         .spinner {
             border: 3px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             border-top-color: #fff;
-            width: 20px;
-            height: 20px;
+            width: 20px; height: 20px;
             animation: spin 1s ease-in-out infinite;
         }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        
-        /* Custom styles for active/inactive tabs */
-        .tab-btn.active {
-            border-bottom-color: #3b82f6; /* blue-500 */
-            color: #3b82f6;
-            font-weight: 600;
-        }
-        
-        .tab-btn {
-            border-bottom: 2px solid transparent;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .tab-btn.active { border-bottom-color: #3b82f6; color: #3b82f6; font-weight: 600; }
+        .tab-btn { border-bottom: 2px solid transparent; }
     </style>
 </head>
 
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
 
     <main class="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden" style="min-height: 500px;">
-        <!-- Header Section -->
         <header class="p-6 bg-gradient-to-r from-blue-700 to-blue-900 text-white">
-            <!-- Logo added to the main page header -->
             <img src="https://i.postimg.cc/KvgCmtJG/SELTech-Logo-App.png" alt="SELTech Logo" class="w-20 h-20 mx-auto rounded-md shadow-lg">
-            
             <h1 class="text-3xl font-bold text-center mt-4">SELTech International</h1>
             <p class="text-center text-blue-200 mt-1">Solar Package Calculator</p>
         </header>
@@ -67,76 +40,31 @@
         <!-- Search Section -->
         <section id="budgetSection" class="p-6 md:p-8">
             <h2 class="text-2xl font-semibold text-gray-800 mb-5 text-center">Find Your Perfect Solar Package</h2>
-            
-            <!-- Tab Navigation -->
             <div class="mb-6 border-b border-gray-200">
                 <nav class="flex -mb-px" aria-label="Tabs">
-                    <button id="budgetTabBtn" class="tab-btn active w-1/2 py-4 px-1 text-center text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                        Search by Budget
-                    </button>
-                    <button id="kwTabBtn" class="tab-btn w-1/2 py-4 px-1 text-center text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                        Search by Size (kW)
-                    </button>
+                    <button id="budgetTabBtn" class="tab-btn active w-1/2 py-4 px-1 text-center text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">Search by Budget</button>
+                    <button id="kwTabBtn" class="tab-btn w-1/2 py-4 px-1 text-center text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">Search by Size (kW)</button>
                 </nav>
             </div>
-            
-            <!-- Tab Content -->
             <div>
-                <!-- Budget Range Tab Content -->
                 <div id="budgetTabContent">
                     <fieldset class="space-y-4">
                         <legend class="sr-only">Budget Range</legend>
-                        <div class="relative flex items-start">
-                            <div class="flex items-center h-5">
-                                <input id="range-700k" name="budgetRange" type="radio" value="700000" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
-                            </div>
-                            <div class="ml-3 text-sm">
-                                <label for="range-700k" class="font-medium text-gray-700">Under 700,000</label>
-                            </div>
-                        </div>
-                        <div class="relative flex items-start">
-                            <div class="flex items-center h-5">
-                                <input id="range-900k" name="budgetRange" type="radio" value="900000" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
-                            </div>
-                            <div class="ml-3 text-sm">
-                                <label for="range-900k" class="font-medium text-gray-700">Under 900,000</label>
-                            </div>
-                        </div>
-                        <div class="relative flex items-start">
-                            <div class="flex items-center h-5">
-                                <input id="range-1400k" name="budgetRange" type="radio" value="1400000" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
-                            </div>
-                            <div class="ml-3 text-sm">
-                                <label for="range-1400k" class="font-medium text-gray-700">Under 1,400,000</label>
-                            </div>
-                        </div>
-                        <div class="relative flex items-start">
-                            <div class="flex items-center h-5">
-                                <input id="range-all" name="budgetRange" type="radio" value="all" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300" checked>
-                            </div>
-                            <div class="ml-3 text-sm">
-                                <label for="range-all" class="font-medium text-gray-700">Show All Packages</label>
-                            </div>
-                        </div>
+                        <div class="relative flex items-start"><div class="flex items-center h-5"><input id="range-700k" name="budgetRange" type="radio" value="700000" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"></div><div class="ml-3 text-sm"><label for="range-700k" class="font-medium text-gray-700">Under 700,000</label></div></div>
+                        <div class="relative flex items-start"><div class="flex items-center h-5"><input id="range-900k" name="budgetRange" type="radio" value="900000" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"></div><div class="ml-3 text-sm"><label for="range-900k" class="font-medium text-gray-700">Under 900,000</label></div></div>
+                        <div class="relative flex items-start"><div class="flex items-center h-5"><input id="range-1400k" name="budgetRange" type="radio" value="1400000" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300"></div><div class="ml-3 text-sm"><label for="range-1400k" class="font-medium text-gray-700">Under 1,400,000</label></div></div>
+                        <div class="relative flex items-start"><div class="flex items-center h-5"><input id="range-all" name="budgetRange" type="radio" value="all" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300" checked></div><div class="ml-3 text-sm"><label for="range-all" class="font-medium text-gray-700">Show All Packages</label></div></div>
                     </fieldset>
-                    <button id="findPackagesByBudgetBtn"
-                        class="w-full mt-6 bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-                        Find Packages
-                    </button>
+                    <button id="findPackagesByBudgetBtn" class="w-full mt-6 bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Find Packages</button>
                 </div>
-                
-                <!-- kW Size Tab Content (Hidden by default) -->
                 <div id="kwTabContent" class="hidden">
                     <label for="kwSelect" class="block text-sm font-medium text-gray-700">Select System Size</label>
                     <select id="kwSelect" name="kwSelect" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="all">Show All Sizes</option>
-                        <option value="3.3">3.3 kW</option>
-                        <option value="5">5 kW</option>
+                        <option value="3.3">3.3kW</option>
+                        <option value="5">5kW</option>
                     </select>
-                    <button id="findPackagesByKwBtn"
-                        class="w-full mt-6 bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-                        Find Packages
-                    </button>
+                    <button id="findPackagesByKwBtn" class="w-full mt-6 bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Find Packages</button>
                 </div>
             </div>
         </section>
@@ -144,30 +72,21 @@
         <!-- Packages List Section -->
         <section id="packagesSection" class="p-6 md:p-8 hidden">
             <h2 id="packagesTitle" class="text-2xl font-semibold text-gray-800 mb-5 text-center">Available Packages</h2>
-            <div id="packagesList" class="space-y-4">
-                <!-- Package cards will be injected here by JavaScript -->
-            </div>
+            <div id="packagesList" class="space-y-4"></div>
             <div id="noPackagesMessage" class="text-center text-gray-500 py-8 hidden">
                 <p class="text-lg">No packages found for your selection.</p>
                 <p class="text-sm">Please try a different range or system size.</p>
             </div>
-            <button id="startOverBtn"
-                class="w-full mt-6 bg-gray-500 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-gray-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">
-                Start Over
-            </button>
+            <button id="startOverBtn" class="w-full mt-6 bg-gray-500 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-gray-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">Start Over</button>
         </section>
 
         <!-- Package Details Section -->
         <section id="detailsSection" class="p-6 md:p-8 hidden">
-            <!-- Details will be injected here -->
             <div id="packageDetailContent">
                 <h2 id="detail-name" class="text-3xl font-bold text-gray-900 text-center">Package Name</h2>
                 <p id="detail-price" class="text-2xl font-semibold text-blue-700 text-center mt-2">Price</p>
-
                 <h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3 border-b pb-2">What's Included:</h3>
-                <ul id="detail-products" class="list-disc list-inside text-gray-700 space-y-1">
-                    <!-- Product items will be injected here by JavaScript -->
-                </ul>
+                <ul id="detail-products" class="list-disc list-inside text-gray-700 space-y-1"></ul>
             </div>
             
             <form id="pdfForm" class="mt-6 mb-4 space-y-3" novalidate>
@@ -187,21 +106,28 @@
                     <input type="number" id="customerDiscount" name="customerDiscount" min="0" max="100" step="0.1" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 5">
                 </div>
             
-                <!-- Action Buttons for Details View -->
-                <div class="flex flex-col sm:flex-row gap-3 pt-4">
-                    <button id="downloadPdfBtn" type="submit"
-                            class="flex-1 bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 flex items-center justify-center gap-2">
+                <!-- Status & Manual Upload Area -->
+                <div id="statusMessage" class="text-center text-sm text-blue-600 font-medium hidden mb-2"></div>
+                
+                <div id="manualUploadSection" class="hidden bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                    <p class="text-sm text-yellow-800 mb-2">⚠️ Could not automatically fetch the template.</p>
+                    <p class="text-xs text-gray-600 mb-3">This happens in preview mode. Please select the "SELTech Quotation.pdf" file from your computer.</p>
+                    <input type="file" id="templateUpload" accept=".pdf" class="hidden">
+                    <label for="templateUpload" class="cursor-pointer bg-yellow-600 text-white py-2 px-4 rounded-lg text-sm font-bold hover:bg-yellow-700">
+                        Select PDF Template
+                    </label>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                    <button id="downloadPdfBtn" type="submit" class="flex-1 bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 flex items-center justify-center gap-2">
                         <span id="downloadBtnText">Download as PDF</span>
                         <div id="downloadSpinner" class="spinner hidden"></div>
                     </button>
-                    <button id="backBtn" type="button"
-                            class="flex-1 bg-gray-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-gray-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">
-                        Back to List
-                    </button>
+                    <button id="backBtn" type="button" class="flex-1 bg-gray-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-gray-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">Back to List</button>
                 </div>
             </form>
         </section>
-
     </main>
 
     <script>
@@ -209,518 +135,315 @@
 
             // --- Database of Solar Packages ---
             const allPackages = [
-                {
-                    id: 1,
-                    name: '3.3kW Chinese Package',
-                    price: 600000,
-                    kw: 3.3,
-                    brand: 'Chinese',
-                    products: [
-                        '10 x 330W Solar Panels (Chinese)',
-                        '1 x 3.3kW On-Grid Inverter (Chinese)',
-                        'Standard Mounting Structure',
-                        'DC/AC Cabling & Accessories',
-                        'Installation & Commissioning'
-                    ]
-                },
-                {
-                    id: 2,
-                    name: '3.3kW Korean Package',
-                    price: 850000,
-                    kw: 3.3,
-                    brand: 'Korean',
-                    products: [
-                        '8 x 415W Solar Panels (Korean Brand)',
-                        '1 x 3.3kW On-Grid Inverter (Korean Brand)',
-                        'Premium Mounting Structure',
-                        'DC/AC Cabling & Accessories',
-                        'Installation & Commissioning'
-                    ]
-                },
-                {
-                    id: 3,
-                    name: '5kW Chinese Package',
-                    price: 900000,
-                    kw: 5,
-                    brand: 'Chinese',
-                    products: [
-                        '15 x 330W Solar Panels (Chinese)',
-                        '1 x 5kW On-Grid Inverter (Chinese)',
-                        'Standard Mounting Structure',
-                        'DC/AC Cabling & Accessories',
-                        'Installation & Commissioning'
-                    ]
-                },
-                {
-                    id: 4,
-                    name: '5kW Korean Package',
-                    price: 1300000,
-                    kw: 5,
-                    brand: 'Korean',
-                    products: [
-                        '12 x 415W Solar Panels (Korean Brand)',
-                        '1 x 5kW On-Grid Inverter (Korean Brand)',
-                        'Premium Mounting Structure',
-                        'DC/AC Cabling & Accessories',
-                        'Installation & Commissioning'
-                    ]
-                }
+                { id: 1, name: '3.3kW Chinese Package', price: 600000, kw: 3.3, brand: 'Chinese', products: ['10 x 330W Solar Panels (Chinese)', '1 x 3.3kW On-Grid Inverter (Chinese)', 'Standard Mounting Structure', 'DC/AC Cabling & Accessories', 'Installation & Commissioning'] },
+                { id: 2, name: '3.3kW Korean Package', price: 850000, kw: 3.3, brand: 'Korean', products: ['8 x 415W Solar Panels (Korean Brand)', '1 x 3.3kW On-Grid Inverter (Korean Brand)', 'Premium Mounting Structure', 'DC/AC Cabling & Accessories', 'Installation & Commissioning'] },
+                { id: 3, name: '5kW Chinese Package', price: 900000, kw: 5, brand: 'Chinese', products: ['15 x 330W Solar Panels (Chinese)', '1 x 5kW On-Grid Inverter (Chinese)', 'Standard Mounting Structure', 'DC/AC Cabling & Accessories', 'Installation & Commissioning'] },
+                { id: 4, name: '5kW Korean Package', price: 1300000, kw: 5, brand: 'Korean', products: ['12 x 415W Solar Panels (Korean Brand)', '1 x 5kW On-Grid Inverter (Korean Brand)', 'Premium Mounting Structure', 'DC/AC Cabling & Accessories', 'Installation & Commissioning'] }
             ];
-            // --- End of Package Database ---
 
-
-            // --- UI Sections ---
-            const budgetSection = document.getElementById('budgetSection');
-            const packagesSection = document.getElementById('packagesSection');
-            const detailsSection = document.getElementById('detailsSection');
-
-            // --- Buttons ---
-            const findPackagesByBudgetBtn = document.getElementById('findPackagesByBudgetBtn');
-            const findPackagesByKwBtn = document.getElementById('findPackagesByKwBtn');
-            const startOverBtn = document.getElementById('startOverBtn');
-            const backBtn = document.getElementById('backBtn');
-            const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-            const downloadBtnText = document.getElementById('downloadBtnText');
-            const downloadSpinner = document.getElementById('downloadSpinner');
-
-            // --- Inputs & Validation ---
-            const customerNameInput = document.getElementById('customerName');
-            const customerAddressInput = document.getElementById('customerAddress');
-            const pdfForm = document.getElementById('pdfForm');
-            const nameError = document.getElementById('nameError');
-            const addressError = document.getElementById('addressError');
+            // --- UI Elements ---
+            const sections = {
+                budget: document.getElementById('budgetSection'),
+                packages: document.getElementById('packagesSection'),
+                details: document.getElementById('detailsSection')
+            };
             
-            // --- State ---
+            const btns = {
+                findBudget: document.getElementById('findPackagesByBudgetBtn'),
+                findKw: document.getElementById('findPackagesByKwBtn'),
+                startOver: document.getElementById('startOverBtn'),
+                back: document.getElementById('backBtn'),
+                download: document.getElementById('downloadPdfBtn'),
+                budgetTab: document.getElementById('budgetTabBtn'),
+                kwTab: document.getElementById('kwTabBtn')
+            };
+
+            const inputs = {
+                name: document.getElementById('customerName'),
+                address: document.getElementById('customerAddress'),
+                discount: document.getElementById('customerDiscount'),
+                kwSelect: document.getElementById('kwSelect'),
+                templateUpload: document.getElementById('templateUpload')
+            };
+            
+            const ui = {
+                status: document.getElementById('statusMessage'),
+                manualUpload: document.getElementById('manualUploadSection'),
+                downloadText: document.getElementById('downloadBtnText'),
+                spinner: document.getElementById('downloadSpinner'),
+                pkgList: document.getElementById('packagesList'),
+                noPkgMsg: document.getElementById('noPackagesMessage'),
+                nameError: document.getElementById('nameError'),
+                addrError: document.getElementById('addressError')
+            };
+            
             let currentSelectedPackage = null;
-            
+
             // --- Tabs ---
-            const budgetTabBtn = document.getElementById('budgetTabBtn');
-            const kwTabBtn = document.getElementById('kwTabBtn');
-            const budgetTabContent = document.getElementById('budgetTabContent');
-            const kwTabContent = document.getElementById('kwTabContent');
-            
-            // --- Lists & Details ---
-            const packagesList = document.getElementById('packagesList');
-            const packagesTitle = document.getElementById('packagesTitle');
-            const noPackagesMessage = document.getElementById('noPackagesMessage');
-            const detailName = document.getElementById('detail-name');
-            const detailPrice = document.getElementById('detail-price');
-            const detailProducts = document.getElementById('detail-products');
-            const kwSelect = document.getElementById('kwSelect');
-
-
-            // --- Tab Navigation Logic ---
-            budgetTabBtn.addEventListener('click', () => {
-                budgetTabBtn.classList.add('active');
-                kwTabBtn.classList.remove('active');
-                budgetTabContent.classList.remove('hidden');
-                kwTabContent.classList.add('hidden');
+            btns.budgetTab.addEventListener('click', () => {
+                btns.budgetTab.classList.add('active'); btns.kwTab.classList.remove('active');
+                document.getElementById('budgetTabContent').classList.remove('hidden');
+                document.getElementById('kwTabContent').classList.add('hidden');
             });
-            
-            kwTabBtn.addEventListener('click', () => {
-                kwTabBtn.classList.add('active');
-                budgetTabBtn.classList.remove('active');
-                kwTabContent.classList.remove('hidden');
-                budgetTabContent.classList.add('hidden');
+            btns.kwTab.addEventListener('click', () => {
+                btns.kwTab.classList.add('active'); btns.budgetTab.classList.remove('active');
+                document.getElementById('kwTabContent').classList.remove('hidden');
+                document.getElementById('budgetTabContent').classList.add('hidden');
             });
 
-            // --- Filter Functions ---
-            function findPackagesByBudget() {
-                const selectedRange = document.querySelector('input[name="budgetRange"]:checked').value;
-                let filteredPackages;
-                if (selectedRange === 'all') {
-                    filteredPackages = allPackages;
-                } else {
-                    const maxBudget = parseInt(selectedRange, 10);
-                    filteredPackages = allPackages.filter(pkg => pkg.price <= maxBudget);
-                }
-                displayPackages(filteredPackages);
-            }
+            // --- Logic ---
+            btns.findBudget.addEventListener('click', () => {
+                const range = document.querySelector('input[name="budgetRange"]:checked').value;
+                const filtered = range === 'all' ? allPackages : allPackages.filter(p => p.price <= parseInt(range));
+                displayPackages(filtered);
+            });
 
-            function findPackagesByKw() {
-                const selectedKw = kwSelect.value;
-                let filteredPackages;
-                if (selectedKw === 'all') {
-                    filteredPackages = allPackages;
-                } else {
-                    const kw = parseFloat(selectedKw);
-                    filteredPackages = allPackages.filter(pkg => pkg.kw === kw);
-                }
-                displayPackages(filteredPackages);
-            }
+            btns.findKw.addEventListener('click', () => {
+                const val = inputs.kwSelect.value;
+                const filtered = val === 'all' ? allPackages : allPackages.filter(p => p.kw === parseFloat(val));
+                displayPackages(filtered);
+            });
 
-            // --- UI Display Functions ---
             function displayPackages(packages) {
-                packagesList.innerHTML = ''; 
-                if (packages.length === 0) {
-                    noPackagesMessage.classList.remove('hidden');
+                ui.pkgList.innerHTML = '';
+                if (packages.length === 0) { ui.noPkgMsg.classList.remove('hidden'); }
+                else {
+                    ui.noPkgMsg.classList.add('hidden');
+                    packages.sort((a, b) => a.price - b.price).forEach(pkg => {
+                        const div = document.createElement('div');
+                        div.className = 'border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-lg transition-shadow duration-300 flex justify-between items-center';
+                        div.innerHTML = `<div><h3 class="text-xl font-semibold text-gray-800">${pkg.name}</h3><p class="text-lg font-medium text-blue-700 mt-1">${pkg.price.toLocaleString()}</p></div><button class="bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300">View Details</button>`;
+                        div.querySelector('button').addEventListener('click', () => showDetails(pkg));
+                        ui.pkgList.appendChild(div);
+                    });
+                }
+                sections.budget.classList.add('hidden'); sections.details.classList.add('hidden'); sections.packages.classList.remove('hidden');
+            }
+
+            function showDetails(pkg) {
+                currentSelectedPackage = pkg;
+                document.getElementById('detail-name').textContent = pkg.name;
+                document.getElementById('detail-price').textContent = pkg.price.toLocaleString();
+                const list = document.getElementById('detail-products'); list.innerHTML = '';
+                pkg.products.forEach(p => { const li = document.createElement('li'); li.textContent = p; list.appendChild(li); });
+                sections.packages.classList.add('hidden'); sections.details.classList.remove('hidden');
+            }
+
+            function resetUI() {
+                sections.details.classList.add('hidden'); sections.packages.classList.add('hidden'); sections.budget.classList.remove('hidden');
+                inputs.kwSelect.value = 'all'; document.getElementById('range-all').checked = true;
+                inputs.name.value = ''; inputs.address.value = ''; inputs.discount.value = '';
+                ui.nameError.classList.add('hidden'); ui.addrError.classList.add('hidden'); ui.status.classList.add('hidden'); ui.manualUpload.classList.add('hidden');
+                btns.budgetTab.click();
+            }
+            
+            btns.startOver.addEventListener('click', resetUI);
+            btns.back.addEventListener('click', () => { sections.details.classList.add('hidden'); sections.packages.classList.remove('hidden'); ui.status.classList.add('hidden'); ui.manualUpload.classList.add('hidden'); });
+            
+            // --- File Upload Handler ---
+            inputs.templateUpload.addEventListener('change', async (e) => {
+                if (e.target.files.length > 0) {
+                    ui.manualUpload.classList.add('hidden');
+                    await processPdf(e.target.files[0].arrayBuffer());
+                }
+            });
+
+            // --- PDF Generation ---
+            async function fetchTemplate() {
+                const urls = [
+                    'SELTech%20Quotation.pdf', 
+                    'public/SELTech%20Quotation.pdf',
+                    'https://raw.githubusercontent.com/imeths/SELTech/main/public/SELTech%20Quotation.pdf',
+                    'https://raw.githubusercontent.com/imeths/SELTech/main/SELTech%20Quotation.pdf' // Added root fallback
+                ];
+                
+                for (const url of urls) {
+                    try {
+                        const res = await fetch(url);
+                        if (res.ok) return await res.arrayBuffer();
+                    } catch (e) { console.warn('Fetch failed:', url); }
+                }
+                return null; // Failed all
+            }
+
+            document.getElementById('pdfForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                let valid = true;
+                if (!inputs.name.value.trim()) { ui.nameError.classList.remove('hidden'); valid = false; } else ui.nameError.classList.add('hidden');
+                if (!inputs.address.value.trim()) { ui.addrError.classList.remove('hidden'); valid = false; } else ui.addrError.classList.add('hidden');
+                if (!valid) return;
+
+                btns.download.disabled = true; ui.downloadText.textContent = 'Checking Template...'; ui.spinner.classList.remove('hidden');
+                ui.status.classList.remove('hidden'); ui.status.textContent = 'Looking for PDF template...';
+
+                // 1. Try Auto Fetch
+                let templateBuffer = await fetchTemplate();
+                
+                if (templateBuffer) {
+                     await processPdf(templateBuffer);
                 } else {
-                    noPackagesMessage.classList.add('hidden');
-                    packages.sort((a, b) => a.price - b.price);
-                    packages.forEach(pkg => {
-                        const card = document.createElement('div');
-                        card.className = 'border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-lg transition-shadow duration-300';
-                        card.innerHTML = `
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <h3 class="text-xl font-semibold text-gray-800">${pkg.name}</h3>
-                                    <p class="text-lg font-medium text-blue-700 mt-1">${pkg.price.toLocaleString()}</p>
-                                </div>
-                                <button data-id="${pkg.id}" class="view-details-btn bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-                                    View Details
-                                </button>
-                            </div>
-                        `;
-                        packagesList.appendChild(card);
-                    });
+                    // 2. Fail -> Show Manual Upload
+                    ui.status.textContent = 'Template not found automatically.';
+                    ui.status.classList.add('text-yellow-600');
+                    ui.manualUpload.classList.remove('hidden');
+                    ui.downloadText.textContent = 'Download as PDF';
+                    ui.spinner.classList.add('hidden');
+                    btns.download.disabled = false;
                 }
+            });
 
-                document.querySelectorAll('.view-details-btn').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const packageId = parseInt(e.target.dataset.id, 10);
-                        showPackageDetails(packageId);
-                    });
-                });
+            async function processPdf(templateBuffer) {
+                ui.status.classList.remove('text-yellow-600');
+                ui.status.classList.add('text-blue-600');
+                ui.status.textContent = 'Generating Quote...';
+                ui.downloadText.textContent = 'Merging...';
+                btns.download.disabled = true; // Ensure disabled during processing
 
-                budgetSection.classList.add('hidden');
-                detailsSection.classList.add('hidden');
-                packagesSection.classList.remove('hidden');
-            }
-
-            function showPackageDetails(packageId) {
-                currentSelectedPackage = allPackages.find(pkg => pkg.id === packageId);
-                if (!currentSelectedPackage) return;
-                detailName.textContent = currentSelectedPackage.name;
-                detailPrice.textContent = `${currentSelectedPackage.price.toLocaleString()}`;
-                detailProducts.innerHTML = '';
-                currentSelectedPackage.products.forEach(product => {
-                    const li = document.createElement('li');
-                    li.textContent = product;
-                    detailProducts.appendChild(li);
-                });
-                packagesSection.classList.add('hidden');
-                detailsSection.classList.remove('hidden');
-            }
-            
-            function showPackageList() {
-                detailsSection.classList.add('hidden');
-                packagesSection.classList.remove('hidden');
-                currentSelectedPackage = null;
-                nameError.classList.add('hidden');
-                addressError.classList.add('hidden');
-            }
-
-            function showBudgetInput() {
-                detailsSection.classList.add('hidden');
-                packagesSection.classList.add('hidden');
-                budgetSection.classList.remove('hidden');
-                kwSelect.value = 'all';
-                document.getElementById('range-all').checked = true;
-                customerNameInput.value = '';
-                customerAddressInput.value = '';
-                nameError.classList.add('hidden');
-                addressError.classList.add('hidden');
-                document.getElementById('customerDiscount').value = '';
-                budgetTabBtn.click();
-            }
-            
-            // --- PDF Generation Logic ---
-            
-            // Helper function to download bytes as a file
-            function downloadBlob(bytes, fileName, mimeType) {
-                const blob = new Blob([bytes], { type: mimeType });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = fileName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(link.href);
-            }
-
-            // Main handler for form submission
-            async function handlePdfGeneration(event) {
-                event.preventDefault(); 
-                nameError.classList.add('hidden');
-                addressError.classList.add('hidden');
-                let isValid = true;
-                
-                const customerName = customerNameInput.value.trim();
-                const customerAddress = customerAddressInput.value.trim();
-                
-                if (customerName === '') {
-                    nameError.classList.remove('hidden');
-                    isValid = false;
-                }
-                if (customerAddress === '') {
-                    addressError.classList.remove('hidden');
-                    isValid = false;
-                }
-                
-                const discountInput = document.getElementById('customerDiscount').value;
-                const discountPercentage = parseFloat(discountInput) || 0; // Treat empty/invalid as 0
-
-                if (!isValid || !currentSelectedPackage) {
-                    return;
-                }
-
-                // Show loading state
-                downloadBtnText.textContent = 'Generating...';
-                downloadSpinner.classList.remove('hidden');
-                downloadPdfBtn.disabled = true;
-
-                // UPDATED: Use a relative path. 
-                // This assumes 'SELTech Quotation.pdf' is in the SAME folder as index.html on Vercel.
-                const templateUrl = './SELTech Quotation.pdf';
-                
                 try {
-                    // Load the PDF-LIB functions
+                    // Resolve the promise to get the ArrayBuffer
+                    const buffer = templateBuffer instanceof Promise ? await templateBuffer : templateBuffer;
+
                     const { PDFDocument } = window.PDFLib;
+                    const pdfDoc = await PDFDocument.create();
+                    const templateDoc = await PDFDocument.load(buffer);
+                    
+                    // Generate Quote Page
+                    const quoteBytes = await createQuotePage();
+                    const quoteDoc = await PDFDocument.load(quoteBytes);
 
-                    // 1. Create our new quote page in memory
-                    const quotePageBytes = await createQuotePage(customerName, customerAddress, discountPercentage);
+                    // Merge Logic (Pages 1-6, Quote, Pages 7-10)
+                    const p1 = await pdfDoc.copyPages(templateDoc, [0,1,2,3,4,5]);
+                    p1.forEach(p => pdfDoc.addPage(p));
+                    
+                    const [qPage] = await pdfDoc.copyPages(quoteDoc, [0]);
+                    pdfDoc.addPage(qPage);
+                    
+                    const p2 = await pdfDoc.copyPages(templateDoc, [6,7,8,9]);
+                    p2.forEach(p => pdfDoc.addPage(p));
 
-                    // 2. Fetch your existing PDF template
-                    const templateBytes = await fetch(templateUrl).then(res => {
-                        if (!res.ok) {
-                            throw new Error(`Failed to fetch PDF template (Status: ${res.status}). Ensure 'SELTech Quotation.pdf' is in your project folder.`);
-                        }
-                        return res.arrayBuffer();
-                    });
+                    const pdfBytes = await pdfDoc.save();
+                    
+                    // Download
+                    const name = inputs.name.value.trim().replace(/ /g, '_');
+                    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `${name}_SELTech_${currentSelectedPackage.kw}kW_Quotation.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    ui.status.textContent = 'Download Started!';
+                    setTimeout(() => { ui.status.classList.add('hidden'); }, 3000);
 
-                    // 3. Create a new, blank PDF document
-                    const finalPdfDoc = await PDFDocument.create();
-
-                    // 4. Load the template and our new quote
-                    const templateDoc = await PDFDocument.load(templateBytes);
-                    const quoteDoc = await PDFDocument.load(quotePageBytes);
-
-                    // 5. Copy pages 1-6 from the template
-                    const templatePageIndices1 = [0, 1, 2, 3, 4, 5]; // Pages 1-6
-                    const copiedPages1 = await finalPdfDoc.copyPages(templateDoc, templatePageIndices1);
-                    copiedPages1.forEach(page => finalPdfDoc.addPage(page));
-
-                    // 6. Copy our new quote page (it's the only page, so index 0)
-                    const [newQuotePage] = await finalPdfDoc.copyPages(quoteDoc, [0]);
-                    finalPdfDoc.addPage(newQuotePage); // This is now Page 7
-
-                    // 7. Copy pages 7-10 from the template
-                    const templatePageIndices2 = [6, 7, 8, 9]; // Pages 7-10
-                    const copiedPages2 = await finalPdfDoc.copyPages(templateDoc, templatePageIndices2);
-                    copiedPages2.forEach(page => finalPdfDoc.addPage(page));
-
-                    // 8. Save the final merged PDF
-                    const finalPdfBytes = await finalPdfDoc.save();
-
-                    // 9. Trigger the download
-                    const fileName = `SELTech_Quotation_${currentSelectedPackage.name.replace(/ /g, '_')}.pdf`;
-                    downloadBlob(finalPdfBytes, fileName, 'application/pdf');
-
-                } catch (error) {
-                    console.error("Error generating merged PDF:", error);
-                    downloadBtnText.textContent = 'Error! Try Again.';
-                    // Don't use alert()
-                    // alert('Failed to generate PDF. Please check your internet connection and try again.');
+                } catch (err) {
+                    console.error(err);
+                    alert('Error generating PDF: ' + err.message);
+                    ui.status.textContent = 'Error occurred.';
                 } finally {
-                    // Reset button state
-                    // Keep the error message if it failed, otherwise reset
-                    if (downloadBtnText.textContent.includes('Error')) {
-                         setTimeout(() => {
-                            downloadBtnText.textContent = 'Download as PDF';
-                            downloadSpinner.classList.add('hidden');
-                            downloadPdfBtn.disabled = false;
-                         }, 3000); // Reset after 3 seconds
-                    } else {
-                        downloadBtnText.textContent = 'Download as PDF';
-                        downloadSpinner.classList.add('hidden');
-                        downloadPdfBtn.disabled = false;
-                    }
+                    ui.downloadText.textContent = 'Download as PDF';
+                    ui.spinner.classList.add('hidden');
+                    btns.download.disabled = false;
                 }
             }
-            
-            // This function creates the new PDF page in memory
-            async function createQuotePage(customerName, customerAddress, discountPercentage) {
+
+            async function createQuotePage() {
                 const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                const pageMargin = 20;
-                let yPos = pageMargin;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                const w = doc.internal.pageSize.getWidth();
+                const h = doc.internal.pageSize.getHeight();
+                const margin = 20;
+                let y = margin;
 
-                // 1. Add Logo (from URL)
-                const logoUrl = 'https://i.postimg.cc/KvgCmtJG/SELTech-Logo-App.png';
+                // Logo
                 try {
-                    // addImage handles URLs. We keep the try/catch in case of network/CORS failure.
-                    pdf.addImage(logoUrl, 'PNG', pageMargin, yPos, 30, 30);
-                } catch (imgError) {
-                    console.error("Error adding logo to PDF:", imgError);
-                    pdf.setFillColor(230, 230, 230);
-                    pdf.rect(pageMargin, yPos, 30, 30, 'F');
-                    pdf.setTextColor(150, 150, 150);
-                    pdf.setFontSize(10);
-                    pdf.text('Logo Load Failed', pageMargin + 15, yPos + 16, { align: 'center' });
+                    const imgRes = await fetch('https://i.postimg.cc/KvgCmtJG/SELTech-Logo-App.png');
+                    if(imgRes.ok) {
+                        const imgBuf = await imgRes.arrayBuffer();
+                        doc.addImage(new Uint8Array(imgBuf), 'PNG', margin, y, 30, 30);
+                    }
+                } catch(e) { 
+                    doc.setFillColor(200); doc.rect(margin, y, 30, 30, 'F'); doc.text("Logo", margin+5, y+15);
                 }
 
-                // 2. Add Company Info
-                pdf.setFontSize(10);
-                pdf.setFont('helvetica', 'normal');
-                pdf.setTextColor(80, 80, 80);
-                pdf.text('SELTech International', pageWidth - pageMargin, yPos + 5, { align: 'right' });
-                pdf.text('30, Pepiliyana Rd, Nugegoda', pageWidth - pageMargin, yPos + 10, { align: 'right' });
-                pdf.text('011 273 9933 / 077 731 5605', pageWidth - pageMargin, yPos + 15, { align: 'right' });
-                
-                // 3. Add Customer Details
-                yPos = 60;
-                pdf.setFontSize(12);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setTextColor(80, 80, 80);
-                pdf.text('PREPARED FOR:', pageMargin, yPos);
-                
-                yPos += 6;
-                pdf.setFont('helvetica', 'normal');
-                pdf.setTextColor(20, 20, 20);
-                pdf.text(customerName, pageMargin, yPos);
-                
-                yPos += 6;
-                const addressLines = pdf.splitTextToSize(customerAddress, 80);
-                pdf.text(addressLines, pageMargin, yPos);
-                yPos += (addressLines.length * 6) + 10;
+                // Header Info
+                doc.setFontSize(10); doc.setTextColor(80);
+                doc.text('SELTech International', w-margin, y+5, {align:'right'});
+                doc.text('30, Pepiliyana Rd, Nugegoda', w-margin, y+10, {align:'right'});
+                doc.text('011 273 9933 / 077 731 5605', w-margin, y+15, {align:'right'});
 
-                // 4. Add Title & Date
-                pdf.setFontSize(22);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setTextColor(30, 58, 138); // Dark Blue
-                pdf.text('Solar Package Quotation', pageMargin, yPos);
-                
-                yPos += 8;
-                pdf.setFontSize(12);
-                pdf.setFont('helvetica', 'normal');
-                pdf.setTextColor(50, 50, 50);
-                const date = new Date().toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-                pdf.text(`Date Issued: ${date}`, pageMargin, yPos);
+                y = 60;
+                doc.setFontSize(12); doc.setFont('helvetica','bold');
+                doc.text('PREPARED FOR:', margin, y);
+                y += 6; doc.setFont('helvetica','normal'); doc.setTextColor(20);
+                doc.text(inputs.name.value.trim(), margin, y);
+                y += 6; 
+                const addrLines = doc.splitTextToSize(inputs.address.value.trim(), 80);
+                doc.text(addrLines, margin, y);
+                y += (addrLines.length * 6) + 10;
 
-                yPos += 15;
+                doc.setFontSize(22); doc.setFont('helvetica','bold'); doc.setTextColor(30,58,138);
+                doc.text('Solar Package Quotation', margin, y);
+                y += 8; doc.setFontSize(12); doc.setFont('helvetica','normal'); doc.setTextColor(50);
+                doc.text(`Date Issued: ${new Date().toLocaleDateString()}`, margin, y);
+                y += 15;
 
-                // 5. Add Package Details Box
-                let boxContentHeight = 22; // Initial padding and name/size lines
-                
-                // Add lines for price, discount, and total
-                const originalPrice = currentSelectedPackage.price;
-                let discountAmount = 0;
-                let finalPrice = originalPrice;
-                
-                const priceLines = [];
-                priceLines.push({ label: 'Package Price:', value: originalPrice.toLocaleString() });
-                
-                if (discountPercentage > 0) {
-                    discountAmount = (originalPrice * discountPercentage) / 100;
-                    finalPrice = originalPrice - discountAmount;
-                    
-                    priceLines.push({ label: `Discount (${discountPercentage}%):`, value: `- ${discountAmount.toLocaleString()}` });
-                    priceLines.push({ label: 'Final Price:', value: finalPrice.toLocaleString(), isBold: true });
-                    
-                    boxContentHeight += (priceLines.length - 1) * 7; // Add height for extra lines
+                // Pricing Box
+                const price = currentSelectedPackage.price;
+                const discount = parseFloat(inputs.discount.value) || 0;
+                const discountVal = (price * discount) / 100;
+                const finalVal = price - discountVal;
+
+                let lines = [
+                    {l: 'Package Price:', v: price.toLocaleString()},
+                ];
+                if(discount > 0) {
+                    lines.push({l: `Discount (${discount}%):`, v: `- ${discountVal.toLocaleString()}`});
+                    lines.push({l: 'Final Price:', v: finalVal.toLocaleString(), bold: true});
                 } else {
-                    // No discount, just show total
-                    priceLines.push({ label: 'Total Price:', value: finalPrice.toLocaleString(), isBold: true });
-                    boxContentHeight += 7;
+                    lines.push({l: 'Total Price:', v: finalVal.toLocaleString(), bold: true});
                 }
                 
-                // Recalculate box height
-                const boxHeight = boxContentHeight + 10; // Add some final padding
+                const boxH = 22 + (lines.length * 7);
+                doc.setFillColor(249,250,251); doc.setDrawColor(229,231,235);
+                doc.roundedRect(margin, y, w-(margin*2), boxH, 3, 3, 'FD');
                 
-                pdf.setFillColor(249, 250, 251); // gray-50
-                pdf.setDrawColor(229, 231, 235); // gray-200
-                pdf.roundedRect(pageMargin, yPos, pageWidth - (pageMargin * 2), boxHeight, 3, 3, 'FD');
-                
-                // Package Name and Size
-                pdf.setFontSize(14);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setTextColor(20, 20, 20);
-                pdf.text(currentSelectedPackage.name, pageMargin + 10, yPos + 10);
-                
-                pdf.setFontSize(11);
-                pdf.setFont('helvetica', 'normal');
-                pdf.setTextColor(80, 80, 80);
-                pdf.text(`System Size: ${currentSelectedPackage.kw} kW`, pageMargin + 10, yPos + 18);
-                
-                // --- Price details on the right side ---
-                let priceYPos = yPos + 10;
-                const priceXLabel = pageWidth - pageMargin - 65; // X position for labels
-                const priceXValue = pageWidth - pageMargin - 10; // X position for values
+                doc.setFontSize(14); doc.setFont('helvetica','bold'); doc.setTextColor(20);
+                doc.text(currentSelectedPackage.name, margin+10, y+10);
+                doc.setFontSize(11); doc.setFont('helvetica','normal'); doc.setTextColor(80);
+                doc.text(`System Size: ${currentSelectedPackage.kw} kW`, margin+10, y+18);
 
-                priceLines.forEach((line, index) => {
-                    if (line.isBold) {
-                        pdf.setFontSize(14); // Make final price larger
-                        pdf.setFont('helvetica', 'bold');
-                        pdf.setTextColor(30, 58, 138); // Dark Blue
-                    } else {
-                        pdf.setFontSize(11);
-                        pdf.setFont('helvetica', 'normal');
-                        pdf.setTextColor(80, 80, 80);
-                    }
-                    
-                    pdf.text(line.label, priceXLabel, priceYPos, { align: 'left' });
-                    pdf.text(line.value, priceXValue, priceYPos, { align: 'right' });
-                    
-                    priceYPos += 7; // Spacing for each line
+                let py = y+10;
+                lines.forEach(l => {
+                    doc.setFont('helvetica', l.bold ? 'bold' : 'normal');
+                    doc.setFontSize(l.bold ? 14 : 11);
+                    doc.setTextColor(l.bold ? 30 : 80, l.bold ? 58 : 80, l.bold ? 138 : 80);
+                    doc.text(l.l, w-margin-65, py, {align:'left'});
+                    doc.text(l.v, w-margin-10, py, {align:'right'});
+                    py += 7;
                 });
 
-                // Reset font
-                pdf.setFontSize(11);
-                pdf.setFont('helvetica', 'normal');
+                y += boxH + 10;
 
-                yPos += boxHeight + 10; // Move yPos down past the box
+                doc.setFontSize(14); doc.setFont('helvetica','bold'); doc.setTextColor(50);
+                doc.text('Products Included', margin, y);
+                y += 8; doc.setFontSize(11); doc.setFont('helvetica','normal'); doc.setTextColor(20);
                 
-                // 6. Add Products Table
-                pdf.setFontSize(14);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setTextColor(50, 50, 50);
-                pdf.text('Products Included', pageMargin, yPos);
-                
-                yPos += 8;
-                pdf.setFontSize(11);
-                pdf.setFont('helvetica', 'normal');
-                pdf.setTextColor(20, 20, 20);
-                
-                const lineHeight = 6;
-                
-                currentSelectedPackage.products.forEach((product, index) => {
-                    // Check if we need to add a new page
-                    if (yPos + lineHeight > pageHeight - pageMargin) {
-                        pdf.addPage();
-                        yPos = pageMargin;
-                        // Reset font settings for new page
-                        pdf.setFontSize(11);
-                        pdf.setFont('helvetica', 'normal');
-                    }
-                    pdf.text('•', pageMargin + 5, yPos);
-                    const productLines = pdf.splitTextToSize(product, pageWidth - (pageMargin * 2) - 15);
-                    pdf.text(productLines, pageMargin + 10, yPos);
-                    yPos += (productLines.length * lineHeight) + 2; // Add a little padding
+                currentSelectedPackage.products.forEach(p => {
+                    if(y > h - margin) { doc.addPage(); y = margin; }
+                    doc.text('•', margin+5, y);
+                    const pl = doc.splitTextToSize(p, w-(margin*2)-15);
+                    doc.text(pl, margin+10, y);
+                    y += (pl.length * 6) + 2;
                 });
 
-                // 7. Add Footer
-                const footerY = pdf.internal.pageSize.getHeight() - 15;
-                pdf.setFontSize(10);
-                pdf.setFont('helvetica', 'normal');
-                pdf.setTextColor(150, 150, 150);
-                pdf.line(pageMargin, footerY - 5, pageWidth - pageMargin, footerY - 5);
-                pdf.text('This is a dynamically generated quotation page.', pageWidth / 2, footerY, { align: 'center' });
-                
-                // 8. Return the PDF bytes
-                return pdf.output('arraybuffer');
+                const fy = h - 15;
+                doc.setFontSize(10); doc.setTextColor(150);
+                doc.line(margin, fy-5, w-margin, fy-5);
+                doc.text('Thank you for choosing SELTech International.', w/2, fy, {align:'center'});
+
+                return doc.output('arraybuffer');
             }
-
-            // --- Attach Initial Event Listeners ---
-            findPackagesByBudgetBtn.addEventListener('click', findPackagesByBudget);
-            findPackagesByKwBtn.addEventListener('click', findPackagesByKw);
-            startOverBtn.addEventListener('click', showBudgetInput);
-            backBtn.addEventListener('click', showPackageList);
-            pdfForm.addEventListener('submit', handlePdfGeneration);
-            
-            // Set default tab on load
-            budgetTabBtn.click();
         });
     </script>
 </body>
