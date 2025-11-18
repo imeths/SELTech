@@ -469,8 +469,9 @@
                 downloadSpinner.classList.remove('hidden');
                 downloadPdfBtn.disabled = true;
 
-                // NEW: URL for your template from GitHub Raw
-                const templateUrl = 'https://raw.githubusercontent.com/imeths/SELTech/main/SELTech%20Quotation.pdf';
+                // UPDATED: Use a relative path. 
+                // This assumes 'SELTech Quotation.pdf' is in the SAME folder as index.html on Vercel.
+                const templateUrl = './SELTech Quotation.pdf';
                 
                 try {
                     // Load the PDF-LIB functions
@@ -482,7 +483,7 @@
                     // 2. Fetch your existing PDF template
                     const templateBytes = await fetch(templateUrl).then(res => {
                         if (!res.ok) {
-                            throw new Error(`Failed to fetch PDF template (Status: ${res.status})`);
+                            throw new Error(`Failed to fetch PDF template (Status: ${res.status}). Ensure 'SELTech Quotation.pdf' is in your project folder.`);
                         }
                         return res.arrayBuffer();
                     });
