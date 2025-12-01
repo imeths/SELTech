@@ -136,9 +136,9 @@
             // --- Database of Solar Packages ---
             const allPackages = [
                 { id: 1, name: '3.3kW Chinese Package', price: 600000, kw: 3.3, brand: 'Chinese', products: ['10 x 330W Solar Panels (Chinese)', '1 x 3.3kW On-Grid Inverter (Chinese)', 'Standard Mounting Structure', 'DC/AC Cabling & Accessories', 'Installation & Commissioning'] },
-                { id: 2, name: '3.3kW Korean Package', price: 850000, kw: 3.3, brand: 'Korean', products: ['8 x 415W Solar Panels (Korean Brand)', '1 x 3.3kW On-Grid Inverter (Korean Brand)', 'Premium Mounting Structure', 'DC/AC Cabling & Accessories', 'Installation & Commissioning'] },
+                { id: 2, name: '3.3kW Korean Package', price: 850000, kw: 3.3, brand: 'Korean', products: ['10 x 345W Hanwa Q Cells Panels (Korean Brand) - 12 year product warranty & 25 year linear performance warranty', '1 x 3.3kW DSP-123K5E Inverter (Korean Brand)', 'Premium Aluminium Mounting Structure', 'Polycab 4 sq. mm/6 sq. mm & Copper DC Cable ', 'Installation & Commissioning'] },
                 { id: 3, name: '5kW Chinese Package', price: 900000, kw: 5, brand: 'Chinese', products: ['15 x 330W Solar Panels (Chinese)', '1 x 5kW On-Grid Inverter (Chinese)', 'Standard Mounting Structure', 'DC/AC Cabling & Accessories', 'Installation & Commissioning'] },
-                { id: 4, name: '5kW Korean Package', price: 1300000, kw: 5, brand: 'Korean', products: ['12 x 415W Solar Panels (Korean Brand)', '1 x 5kW On-Grid Inverter (Korean Brand)', 'Premium Mounting Structure', 'DC/AC Cabling & Accessories', 'Installation & Commissioning'] }
+                { id: 4, name: '5kW Korean Package', price: 1300000, kw: 5, brand: 'Korean', products: ['12 x 345W Hanwa Q Cells Panels (Korean Brand) - 12 year product warranty & 25 year linear performance warranty', '1 x 5kW DSP-123K5E Inverter (Korean Brand)', 'Premium Aluminium Mounting Structure', 'Polycab 4 sq. mm/6 sq. mm & Copper DC Cable ', 'Installation & Commissioning'] }
             ];
 
             // --- UI Elements ---
@@ -312,14 +312,22 @@
                     const quoteDoc = await PDFDocument.load(quoteBytes);
 
                     // Merge Logic (Pages 1-6, Quote, Pages 7-10)
-                    const p1 = await pdfDoc.copyPages(templateDoc, [0,1,2,3,4,5]);
-                    p1.forEach(p => pdfDoc.addPage(p));
+                    const totalPages = templateDoc.getPageCount();
+                    
+                    if (totalPages >= 6) {
+                        const p1 = await pdfDoc.copyPages(templateDoc, [0,1,2,3,4,5]);
+                        p1.forEach(p => pdfDoc.addPage(p));
+                    }
                     
                     const [qPage] = await pdfDoc.copyPages(quoteDoc, [0]);
                     pdfDoc.addPage(qPage);
                     
-                    const p2 = await pdfDoc.copyPages(templateDoc, [6,7,8,9]);
-                    p2.forEach(p => pdfDoc.addPage(p));
+                    if (totalPages > 6) {
+                        const remainingPages = [];
+                        for(let i=6; i<totalPages; i++) remainingPages.push(i);
+                        const p2 = await pdfDoc.copyPages(templateDoc, remainingPages);
+                        p2.forEach(p => pdfDoc.addPage(p));
+                    }
 
                     const pdfBytes = await pdfDoc.save();
                     
@@ -373,7 +381,7 @@
                 doc.text('011 273 9933 / 077 731 5605', w-margin, y+15, {align:'right'});
 
                 y = 60;
-                doc.setFontSize(12); doc.setFont('helvetica','bold');
+                doc.setFontSize(12); doc.setFont('helvetica','bold'); doc.setTextColor(0);
                 doc.text('PREPARED FOR:', margin, y);
                 y += 6; doc.setFont('helvetica','normal'); doc.setTextColor(20);
                 doc.text(inputs.name.value.trim(), margin, y);
@@ -383,12 +391,12 @@
                 y += (addrLines.length * 6) + 10;
 
                 doc.setFontSize(22); doc.setFont('helvetica','bold'); doc.setTextColor(30,58,138);
-                doc.text('Solar Package Quotation', margin, y);
+                doc.text('QUOTATION', margin, y);
                 y += 8; doc.setFontSize(12); doc.setFont('helvetica','normal'); doc.setTextColor(50);
                 doc.text(`Date Issued: ${new Date().toLocaleDateString()}`, margin, y);
                 y += 15;
 
-                // Pricing Box
+                // Pricing Box logic reverted to "Previous" Clear Box style
                 const price = currentSelectedPackage.price;
                 const discount = parseFloat(inputs.discount.value) || 0;
                 const discountVal = (price * discount) / 100;
@@ -440,7 +448,7 @@
                 const fy = h - 15;
                 doc.setFontSize(10); doc.setTextColor(150);
                 doc.line(margin, fy-5, w-margin, fy-5);
-                doc.text('Thank you for choosing SELTech International.', w/2, fy, {align:'center'});
+                doc.text('This Quotation is valid for 14 days!', w/2, fy, {align:'center'});
 
                 return doc.output('arraybuffer');
             }
